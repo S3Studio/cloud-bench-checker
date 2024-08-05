@@ -2,9 +2,10 @@
 
 Connect to multiple clouds such as public cloud or cloud native via public APIs, and perform security baseline checks according to benchmark recommendations.
 
-[![Go](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml/badge.svg)](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml)
-[![GitHub Release][release-img]][release]
-[![Downloads][download]][release]
+[![Go test](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml/badge.svg)](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/s3studio/cloud-bench-checker)](https://github.com/S3Studio/cloud-bench-checker/releases)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/s3studio/cloud-bench-checker/total)](https://github.com/S3Studio/cloud-bench-checker/releases)
+
 
 ## Feature
 * :white_check_mark: Support for multiple clouds with parallel execution
