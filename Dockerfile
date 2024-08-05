@@ -16,6 +16,6 @@ WORKDIR /app
 RUN adduser -D nonroot
 USER nonroot:nonroot
 
-COPY --from=build-stage /app/main /app/main
+COPY --chown=nonroot --from=build-stage /app/main /app/main
 
 ENTRYPOINT ["/app/main"]
