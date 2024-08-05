@@ -13,10 +13,9 @@ RUN go build -ldflags="-w -s" -v ./bin/cmd/main.go
 FROM alpine AS build-release-stage
 
 WORKDIR /app
-
-COPY --from=build-stage /app/main /app/main
-
 RUN adduser -D nonroot
 USER nonroot:nonroot
+
+COPY --from=build-stage /app/main /app/main
 
 ENTRYPOINT ["/app/main"]
