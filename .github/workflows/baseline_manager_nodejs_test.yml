@@ -8,10 +8,12 @@ on:
     branches: [ "ci_demo" ]
     paths:
       - 'example/baseline_manager/**'
+      - '.github/workflows/baseline_manager_nodejs_test.yml'
   pull_request:
     branches: [ "main" ]
     paths:
       - 'example/baseline_manager/**'
+      - '.github/workflows/baseline_manager_nodejs_test.yml'
 
 jobs:
   build:
@@ -30,6 +32,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+    - run: cd ./example/baseline_manager/
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
