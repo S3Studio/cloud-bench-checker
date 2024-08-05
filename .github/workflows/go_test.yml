@@ -1,13 +1,21 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Go
+name: Go test
 
 on:
   push:
     branches: [ "ci_demo" ]
+    paths-ignore:
+      - 'doc/**'
+      - 'example/**'
+      - 'template/**'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'doc/**'
+      - 'example/**'
+      - 'template/**'
 
 jobs:
 

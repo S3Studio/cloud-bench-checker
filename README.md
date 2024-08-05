@@ -2,6 +2,8 @@
 
 Connect to multiple clouds such as public cloud or cloud native via public APIs, and perform security baseline checks according to benchmark recommendations.
 
+[![Go](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml/badge.svg)](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml)
+
 ## Feature
 * :white_check_mark: Support for multiple clouds with parallel execution
 * :white_check_mark: Support for switching from various authorization profiles
