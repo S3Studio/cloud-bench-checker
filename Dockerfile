@@ -17,5 +17,6 @@ RUN adduser -D nonroot && chown nonroot /app
 USER nonroot:nonroot
 
 COPY --chown=nonroot --from=build-stage /app/main /app/main
+RUN mkdir output && touch output/output.csv && ln -s output/output.csv test.csv
 
-ENTRYPOINT ["/app/main"]
+ENTRYPOINT ["/app/main", "-c", "config.conf"]
