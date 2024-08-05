@@ -2,6 +2,8 @@
 
 A sample project to import and export the yaml configuration file of https://github.com/s3studio/cloud-bench-checker, and display important properties in the browser.
 
+[![Node.js](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/baseline_manager_nodejs_test.yml/badge.svg)](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/baseline_manager_nodejs_test.yml)
+
 ## Feature
 * All data is stored in localStorage of the browser and kept local, with no remote transmission
 
