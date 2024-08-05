@@ -14,7 +14,7 @@ FROM alpine AS build-release-stage
 
 WORKDIR /app
 
-COPY --from=build-stage main main
+COPY --from=build-stage ./main ./main
 
 USER nonroot:nonroot
 
