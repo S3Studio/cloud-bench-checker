@@ -22,7 +22,8 @@ jobs:
       uses: actions/setup-go@v4
 
     - name: Build
-      run: go build -ldflags="-w -s" -v ./bin/cmd/main.go
+      run: CGO_ENABLED=0 go build -ldflags="-w -s" -v ./bin/cmd/main.go
 
     - name: Test
+      # -race needs CGO_ENABLED=1
       run: go test -race -v ./...

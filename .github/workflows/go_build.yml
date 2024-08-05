@@ -3,6 +3,9 @@
 
 name: Go build
 
+env:
+  CGO_ENABLED: 1
+
 on:
   workflow_dispatch:
   push:
