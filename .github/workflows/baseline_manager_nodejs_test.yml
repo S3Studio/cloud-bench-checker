@@ -4,11 +4,6 @@
 name: Node.js test on baseline_manager
 
 on:
-  push:
-    branches: [ "ci_demo" ]
-    paths:
-      - 'example/baseline_manager/**'
-      - '.github/workflows/baseline_manager_nodejs_test.yml'
   pull_request:
     branches: [ "main" ]
     paths:
