@@ -4,12 +4,6 @@
 name: Go test
 
 on:
-  push:
-    branches: [ "ci_demo" ]
-    paths-ignore:
-      - 'doc/**'
-      - 'example/**'
-      - 'template/**'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
