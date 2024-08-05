@@ -3,6 +3,8 @@
 Connect to multiple clouds such as public cloud or cloud native via public APIs, and perform security baseline checks according to benchmark recommendations.
 
 [![Go](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml/badge.svg)](https://github.com/S3Studio/cloud-bench-checker/actions/workflows/go_test.yml)
+[![GitHub Release][release-img]][release]
+[![Downloads][download]][release]
 
 ## Feature
 * :white_check_mark: Support for multiple clouds with parallel execution
@@ -15,15 +17,12 @@ Connect to multiple clouds such as public cloud or cloud native via public APIs,
 **ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project, and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
 
 ## Quick start
-### Install
-1. Clone this repo.
-1. Build as following:
-```sh
-go build ./bin/cmd/main.go
-``` 
+### Download
+1. Download the command tool for your OS from the [release page](https://github.com/S3Studio/cloud-bench-checker/releases).
+1. Download a baseline configuration file of your interest from the [template directory](template), e.g. "baseline.tmpl.conf".
 
 ### Prepare cloud auth config
-To conform to file of `baseline.tmpl.conf`, authorization information should be stored in environment variables.
+To conform to file of "baseline.tmpl.conf", authorization information should be stored in environment variables.
 An easy way to do this is by creating a file similar to this:
 ```
 TENCENTCLOUD_SECRET_ID=xxx

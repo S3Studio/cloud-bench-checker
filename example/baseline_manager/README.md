@@ -18,6 +18,7 @@ This project is a sample project, so related issues would have a low priority.
 
 ## Known issues
 * Changing the theme of highlight.js is not yet supported, so it is not very nice to view the raw yaml configuration under the dark theme.
+* #2
 
 ## Thanks to
 [Vue 3](https://v3.vuejs.org/), [Vuetify 3](https://vuetifyjs.com/en/), and all other supporting libraries
