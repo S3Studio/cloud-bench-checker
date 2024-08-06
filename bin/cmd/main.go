@@ -306,7 +306,7 @@ func main() {
 					for i, key := range header {
 						value := eachData[key]
 						if regNum.MatchString(value) {
-							value = fmt.Sprintf("\"%s\"", value) // Avoid item to be convert to integer
+							value = fmt.Sprintf("=\"%s\"", value) // Avoid item to be convert to integer
 						}
 						line[i] = value
 					}
