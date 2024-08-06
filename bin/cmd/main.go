@@ -290,7 +290,7 @@ func main() {
 				header := []string{"Cloud Type", "Resource Id", "Resource Name", "Resource in risk", "Actual Value"}
 				for _, key := range conf.Option.OutputMetadata {
 					if regNum.MatchString(key) {
-						key = fmt.Sprintf("\"%s\"", key) // Avoid item to be convert to integer
+						key = fmt.Sprintf("=\"%s\"", key) // Avoid item to be convert to integer
 					}
 					header = append(header, key)
 				}
