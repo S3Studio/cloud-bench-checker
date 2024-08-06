@@ -24,7 +24,7 @@ Connect to multiple clouds such as public cloud or cloud native via public APIs,
 
 ### Prepare cloud auth config
 To conform to file of "baseline.tmpl.conf", authorization information should be stored in environment variables.
-An easy way to do this is by creating a file similar to this:
+An easy way to do this is by creating a file named "env.txt" similar to this:
 ```
 TENCENTCLOUD_SECRET_ID=xxx
 TENCENTCLOUD_SECRET_KEY=xxx
@@ -58,6 +58,35 @@ To perform baseline checks with tag `test` in the file of `baseline.tmpl.conf`:
 ```sh
 ./main -t test -c ./template/baseline.tmpl.conf
 ```
+The result will be outputed to a file named "test.csv".
+
+## Quick start with Docker
+### Download
+1. Download a baseline configuration file of your interest from the [template directory](template), e.g. "baseline.tmpl.conf".
+
+### Prepare cloud auth config
+To conform to file of "baseline.tmpl.conf", authorization information should be stored in environment variables.
+Create a file named "env.txt" to be used as the environment file for Docker similar to this:
+```
+TENCENTCLOUD_SECRET_ID=xxx
+TENCENTCLOUD_SECRET_KEY=xxx
+TENCENTCLOUD_REGION=xxx
+ALIBABA_CLOUD_ACCESS_KEY_ID=xxx
+ALIBABA_CLOUD_ACCESS_KEY_SECRET=xxx
+ALIBABA_CLOUD_REGION=xxx
+AZURE_CLIENT_ID=xxx
+AZURE_TENANT_ID=xxx
+AZURE_CLIENT_SECRET=xxx
+AZURE_SUBSCRIPTION_ID=xxx
+```
+
+### Run
+1. (Optional) Create an "output" directory to bypass permission limit if Docker needs be launched with `sudo`.
+1. To perform baseline checks with tag `test` in the file of `baseline.tmpl.conf`:
+```sh
+sudo docker run --rm --env-file ./env.txt -v ./baseline.tmpl.conf:/app/config.conf -v ./output:/app/output ghcr.io/s3studio/cloud-bench-checker:latest -t test
+```
+The result will be outputed to a file named "output/output.csv".
 
 ## Further guide
 Please see [documentation](doc).
@@ -90,7 +119,7 @@ Please see [documentation](doc).
 - [ ] Tool
     - [x] baseline config manager: [project](example/baseline_manager)
     - [ ] building support
-    - [ ] dockerize support
+    - [x] dockerize support: [package](https://github.com/S3Studio/cloud-bench-checker/pkgs/container/cloud-bench-checker)
 - [ ] Doc
     - [ ] usage
         - [x] [auth file format](doc/Auth.md)
