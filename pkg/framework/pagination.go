@@ -188,7 +188,7 @@ func SetConvertObjectToList(flag bool) RDPOption {
 // @param: resultData: Result of the cloud
 // @param: conf: Definition of ConfPaginator
 // @param: dataListJsonPath: JsonPath of how to get the list from resultData
-// @param: opts: Addtional options
+// @param: opts: Additional options
 // @return: List of data on one page
 // @return: NextCondition, See function GetEntireList for detail
 // @return: Error
