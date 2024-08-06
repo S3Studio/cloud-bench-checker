@@ -10,6 +10,9 @@ on:
       - 'doc/**'
       - 'example/**'
       - 'template/**'
+      - 'README.md'
+      - 'Dockerfile'
+      - '.*'
 
 jobs:
 

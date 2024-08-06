@@ -15,7 +15,8 @@ Connect to multiple clouds such as public cloud or cloud native via public APIs,
 * :white_check_mark: Flexible result validation with the support of [JSON Schema](https://json-schema.org/)
 
 ## SECURITY DISCLAIMER
-**ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project, and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
+**ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project,
+and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
 
 ## Quick start
 ### Download
@@ -81,10 +82,11 @@ AZURE_SUBSCRIPTION_ID=xxx
 ```
 
 ### Run
-1. (Optional) Create an "output" directory to bypass permission limit if Docker needs be launched with `sudo`.
+1. (Optional) Create an "output" directory to bypass the permission limit
+  if Docker needs be launched with `sudo`.
 1. To perform baseline checks with tag `test` in the file of `baseline.tmpl.conf`:
 ```sh
-sudo docker run --rm --env-file ./env.txt -v ./baseline.tmpl.conf:/app/config.conf -v ./output:/app/output ghcr.io/s3studio/cloud-bench-checker:latest -t test
+docker run --rm --env-file ./env.txt -v ./baseline.tmpl.conf:/app/config.conf -v ./output:/app/output ghcr.io/s3studio/cloud-bench-checker:latest -t test
 ```
 The result will be outputed to a file named "output/output.csv".
 
@@ -121,7 +123,7 @@ Please see [documentation](doc).
     - [ ] building support
     - [x] dockerize support: [package](https://github.com/S3Studio/cloud-bench-checker/pkgs/container/cloud-bench-checker)
 - [ ] Doc
-    - [ ] usage
+    - [x] usage
         - [x] [auth file format](doc/Auth.md)
     - [x] [baseline config format](doc/Baseline.md)
     - [ ] api
