@@ -17,6 +17,7 @@ import (
 type PostBaselineValidateURL struct {
 	ID       int64
 	Metadata []string
+	RiskOnly *bool
 
 	_basePath string
 	// avoid unkeyed usage
@@ -69,6 +70,14 @@ func (o *PostBaselineValidateURL) Build() (*url.URL, error) {
 
 	for _, qsv := range metadata {
 		qs.Add("metadata", qsv)
+	}
+
+	var riskOnlyQ string
+	if o.RiskOnly != nil {
+		riskOnlyQ = swag.FormatBool(*o.RiskOnly)
+	}
+	if riskOnlyQ != "" {
+		qs.Set("risk_only", riskOnlyQ)
 	}
 
 	_result.RawQuery = qs.Encode()

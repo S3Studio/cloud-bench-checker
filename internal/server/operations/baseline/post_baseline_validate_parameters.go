@@ -20,11 +20,18 @@ import (
 )
 
 // NewPostBaselineValidateParams creates a new PostBaselineValidateParams object
-//
-// There are no default values defined in the spec.
+// with the default values initialized.
 func NewPostBaselineValidateParams() PostBaselineValidateParams {
 
-	return PostBaselineValidateParams{}
+	var (
+		// initialize parameters with default values
+
+		riskOnlyDefault = bool(false)
+	)
+
+	return PostBaselineValidateParams{
+		RiskOnly: &riskOnlyDefault,
+	}
 }
 
 // PostBaselineValidateParams contains all the bound params for the post baseline validate operation
@@ -51,6 +58,11 @@ type PostBaselineValidateParams struct {
 	  Collection Format: multi
 	*/
 	Metadata []string
+	/*Whether only returns cloud resources in risk (failing the benchmark check)
+	  In: query
+	  Default: false
+	*/
+	RiskOnly *bool
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -99,6 +111,11 @@ func (o *PostBaselineValidateParams) BindRequest(r *http.Request, route *middlew
 
 	qMetadata, qhkMetadata, _ := qs.GetOK("metadata")
 	if err := o.bindMetadata(qMetadata, qhkMetadata, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qRiskOnly, qhkRiskOnly, _ := qs.GetOK("risk_only")
+	if err := o.bindRiskOnly(qRiskOnly, qhkRiskOnly, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -151,6 +168,30 @@ func (o *PostBaselineValidateParams) bindMetadata(rawData []string, hasKey bool,
 	}
 
 	o.Metadata = metadataIR
+
+	return nil
+}
+
+// bindRiskOnly binds and validates parameter RiskOnly from query.
+func (o *PostBaselineValidateParams) bindRiskOnly(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		// Default values have been previously initialized by NewPostBaselineValidateParams()
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("risk_only", "query", "bool", raw)
+	}
+	o.RiskOnly = &value
 
 	return nil
 }

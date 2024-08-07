@@ -75,10 +75,7 @@ func init() {
                   "type": "integer"
                 },
                 "data": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/baseline4api"
-                  }
+                  "$ref": "#/definitions/baseline4api"
                 },
                 "msg": {
                   "type": "string"
@@ -238,10 +235,7 @@ func init() {
                   "type": "integer"
                 },
                 "data": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/baseline_data"
-                  }
+                  "$ref": "#/definitions/baseline_data"
                 },
                 "msg": {
                   "type": "string"
@@ -292,6 +286,13 @@ func init() {
             "collectionFormat": "multi",
             "description": "Metadata of Baseline to be outputted",
             "name": "metadata",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether only returns cloud resources in risk (failing the benchmark check)",
+            "name": "risk_only",
             "in": "query"
           },
           {
@@ -382,10 +383,7 @@ func init() {
                   "type": "integer"
                 },
                 "data": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/listor4api"
-                  }
+                  "$ref": "#/definitions/listor4api"
                 },
                 "msg": {
                   "type": "string"
@@ -534,7 +532,8 @@ func init() {
           "type": "string"
         },
         "yaml_hidden": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-omitempty": false
         }
       }
     },
@@ -621,7 +620,8 @@ func init() {
           "type": "string"
         },
         "yaml_hidden": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-omitempty": false
         }
       }
     },
@@ -646,10 +646,12 @@ func init() {
       "type": "object",
       "properties": {
         "actual_value": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "cloud_type": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "metadata": {
           "type": "object",
@@ -658,13 +660,16 @@ func init() {
           }
         },
         "resource_id": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "resource_in_risk": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-omitempty": false
         },
         "resource_name": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         }
       }
     }
@@ -756,10 +761,7 @@ func init() {
                   "type": "integer"
                 },
                 "data": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/baseline4api"
-                  }
+                  "$ref": "#/definitions/baseline4api"
                 },
                 "msg": {
                   "type": "string"
@@ -925,10 +927,7 @@ func init() {
                   "type": "integer"
                 },
                 "data": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/baseline_data"
-                  }
+                  "$ref": "#/definitions/baseline_data"
                 },
                 "msg": {
                   "type": "string"
@@ -985,6 +984,13 @@ func init() {
             "collectionFormat": "multi",
             "description": "Metadata of Baseline to be outputted",
             "name": "metadata",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether only returns cloud resources in risk (failing the benchmark check)",
+            "name": "risk_only",
             "in": "query"
           },
           {
@@ -1081,10 +1087,7 @@ func init() {
                   "type": "integer"
                 },
                 "data": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/listor4api"
-                  }
+                  "$ref": "#/definitions/listor4api"
                 },
                 "msg": {
                   "type": "string"
@@ -1242,7 +1245,8 @@ func init() {
           "type": "string"
         },
         "yaml_hidden": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-omitempty": false
         }
       }
     },
@@ -1329,7 +1333,8 @@ func init() {
           "type": "string"
         },
         "yaml_hidden": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-omitempty": false
         }
       }
     },
@@ -1354,10 +1359,12 @@ func init() {
       "type": "object",
       "properties": {
         "actual_value": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "cloud_type": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "metadata": {
           "type": "object",
@@ -1366,13 +1373,16 @@ func init() {
           }
         },
         "resource_id": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         },
         "resource_in_risk": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-omitempty": false
         },
         "resource_name": {
-          "type": "string"
+          "type": "string",
+          "x-omitempty": false
         }
       }
     }

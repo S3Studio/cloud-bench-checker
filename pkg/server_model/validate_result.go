@@ -18,22 +18,22 @@ import (
 type ValidateResult struct {
 
 	// actual value
-	ActualValue string `json:"actual_value,omitempty"`
+	ActualValue string `json:"actual_value"`
 
 	// cloud type
-	CloudType string `json:"cloud_type,omitempty"`
+	CloudType string `json:"cloud_type"`
 
 	// metadata
 	Metadata map[string]string `json:"metadata,omitempty"`
 
 	// resource id
-	ResourceID string `json:"resource_id,omitempty"`
+	ResourceID string `json:"resource_id"`
 
 	// resource in risk
-	ResourceInRisk bool `json:"resource_in_risk,omitempty"`
+	ResourceInRisk bool `json:"resource_in_risk"`
 
 	// resource name
-	ResourceName string `json:"resource_name,omitempty"`
+	ResourceName string `json:"resource_name"`
 }
 
 // Validate validates this validate result

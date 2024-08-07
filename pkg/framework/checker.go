@@ -68,21 +68,69 @@ type CheckerProp struct {
 	Prop *json.RawMessage
 }
 
+type getPropOpt struct {
+	// IAuthProvider used in call of GetProp instead of default value
+	ap auth.IAuthProvider
+	// IDataProvider used in call of GetProp instead of default value
+	dp IDataProvider
+}
+
+// GetPropOption: Functional options used in GetProp in case more options are added
+type GetPropOption func(opt *getPropOpt) error
+
+// SetAuthProviderOpt: Set getPropOpt.ap
+//
+// IAuthProvider used in call of GetProp instead of default value
+// @param: val: Value for IAuthProvider
+func SetAuthProviderOpt(val auth.IAuthProvider) GetPropOption {
+	return func(options *getPropOpt) error {
+		options.ap = val
+		return nil
+	}
+}
+
+// SetDataProviderOpt: Set getPropOpt.dp
+//
+// IDataProvider used in call of GetProp instead of default value
+// @param: val: Value for IDataProvider
+func SetDataProviderOpt(val IDataProvider) GetPropOption {
+	return func(options *getPropOpt) error {
+		options.dp = val
+		return nil
+	}
+}
+
 // CheckerPropList: Type alias of list of CheckerProp
 type CheckerPropList []*CheckerProp
 
 // GetProp: Extract Id, Name (if required) and properties of the raw data
 // @return: List of properties extracted from raw data
 // @return: Error
-func (c *Checker) GetProp() (CheckerPropList, error) {
+func (c *Checker) GetProp(opts ...GetPropOption) (CheckerPropList, error) {
+	var optAll getPropOpt
+	for _, opt := range opts {
+		err := opt(&optAll)
+		if err != nil {
+			return nil, err
+		}
+	}
+	authProvider := optAll.ap
+	if authProvider == nil {
+		authProvider = c.authProvider
+	}
+	dataProvider := optAll.dp
+	if dataProvider == nil {
+		dataProvider = c.dataProvider
+	}
+
 	var checkerPropList CheckerPropList
 	for _, listorId := range c.conf.Listor {
 		var eachListorData []*json.RawMessage
 		var err error
-		if c.dataProvider == nil {
+		if dataProvider == nil {
 			return nil, errors.New("failed to get raw data, provider is nil")
 		}
-		if cloudType, err := c.dataProvider.GetCloudTypeByListorId(listorId); err != nil {
+		if cloudType, err := dataProvider.GetCloudTypeByListorId(listorId); err != nil {
 			return nil, fmt.Errorf("failed to get cloud type from provider: %w", err)
 		} else if cloudType == "" {
 			// No data of Listor in the cloud, bypass to the next Listor
@@ -91,13 +139,13 @@ func (c *Checker) GetProp() (CheckerPropList, error) {
 			return nil, fmt.Errorf("cloud type of data \"%s\" mismatch cloud type of Checker \"%s\"",
 				cloudType, c.conf.CloudType)
 		}
-		if eachListorData, err = c.dataProvider.GetRawDataByListorId(listorId); err != nil {
+		if eachListorData, err = dataProvider.GetRawDataByListorId(listorId); err != nil {
 			return nil, fmt.Errorf("failed to get raw data from provider: %w", err)
 		}
 
 		for _, rawData := range eachListorData {
 			eachData := &CheckerProp{Prop: rawData}
-			eachData, err = getPropWithCmd(c.authProvider, *eachData, &c.conf.ExtractCmd, c.conf.CloudType)
+			eachData, err = getPropWithCmd(authProvider, *eachData, &c.conf.ExtractCmd, c.conf.CloudType)
 			if err != nil {
 				return nil, err
 			}
@@ -180,6 +228,10 @@ func getPropWithCmd(authProvider auth.IAuthProvider, previousData CheckerProp, c
 }
 
 func getPropWithCloud(authProvider auth.IAuthProvider, cloudType def.CloudType, id string, conf *def.ConfExtractCmd) (*json.RawMessage, error) {
+	if authProvider == nil {
+		return nil, errors.New("nil pointor of IAuthProvider of Checker")
+	}
+
 	switch cloudType {
 	case def.TENCENT_CLOUD:
 		if len(conf.IdParamName) == 0 {

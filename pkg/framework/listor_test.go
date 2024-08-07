@@ -100,6 +100,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			return rmList, NextCondition{}, nil
 		})
 	defer patchRDP.Reset()
+	mockAuthProvider := auth.NewAuthFileProvider(def.ConfProfile{})
 
 	type args struct {
 		paginationParam map[string]any
@@ -115,7 +116,7 @@ func TestListor_GetOnePage(t *testing.T) {
 	}{
 		{
 			"Valid result of TencentCloud",
-			NewListor(&def.ConfListor{CloudType: def.TENCENT_CLOUD}, nil),
+			NewListor(&def.ConfListor{CloudType: def.TENCENT_CLOUD}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil},
 			rmList,
@@ -124,7 +125,7 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"Valid result of TencentCOS",
-			NewListor(&def.ConfListor{CloudType: def.TENCENT_COS}, nil),
+			NewListor(&def.ConfListor{CloudType: def.TENCENT_COS}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil},
 			rmList,
@@ -133,7 +134,7 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"Valid result of AliyunCloud",
-			NewListor(&def.ConfListor{CloudType: def.ALIYUN_CLOUD}, nil),
+			NewListor(&def.ConfListor{CloudType: def.ALIYUN_CLOUD}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil},
 			rmList,
@@ -142,7 +143,7 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"Valid result of AliyunOSS",
-			NewListor(&def.ConfListor{CloudType: def.ALIYUN_OSS}, nil),
+			NewListor(&def.ConfListor{CloudType: def.ALIYUN_OSS}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil},
 			rmList,
@@ -151,7 +152,7 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"Valid result of K8s",
-			NewListor(&def.ConfListor{CloudType: def.K8S}, nil),
+			NewListor(&def.ConfListor{CloudType: def.K8S}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil},
 			rmList,
@@ -160,7 +161,7 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"Valid result with mergeMaps",
-			NewListor(&def.ConfListor{CloudType: def.TENCENT_CLOUD}, nil),
+			NewListor(&def.ConfListor{CloudType: def.TENCENT_CLOUD}, mockAuthProvider),
 			def.ConfListCmd{
 				TencentCloud: def.ConfTencentCloudCmd{
 					ExtraParam: map[string]any{"mock_key": "mock_val"},
@@ -173,7 +174,7 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"invalid cloud type",
-			NewListor(&def.ConfListor{CloudType: "invalid"}, nil),
+			NewListor(&def.ConfListor{CloudType: "invalid"}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil},
 			nil,

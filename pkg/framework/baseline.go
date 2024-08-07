@@ -2,7 +2,10 @@
 package framework
 
 import (
+	"crypto"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -87,7 +90,7 @@ func (b *Baseline) GetListorId() []int {
 //
 // The length of the outer list is equal to the length of checkers
 // @return: List of the result of GetProp of each checker, whose' elements are the list of props extracted from raw data
-func (b *Baseline) GetProp() BaselinePropList {
+func (b *Baseline) GetProp(opts ...GetPropOption) BaselinePropList {
 	var checkerPropList = make(BaselinePropList, len(b.checker))
 
 	var waitGroup sync.WaitGroup
@@ -95,7 +98,7 @@ func (b *Baseline) GetProp() BaselinePropList {
 
 	for i, checker := range b.checker {
 		go func(target *CheckerPropList) {
-			singleCheckerProp, err := checker.GetProp()
+			singleCheckerProp, err := checker.GetProp(opts...)
 			if err != nil {
 				// Print error and skip the current checker
 				glog().Println(err)
@@ -143,4 +146,47 @@ func (b *Baseline) Validate(data BaselinePropList) ([]*ValidateResult, error) {
 // @return: metadata
 func (b *Baseline) GetMetadata() *map[string]string {
 	return &b.conf.Metadata
+}
+
+func (b *Baseline) GetHash(hashType crypto.Hash, listorHashList [][]*[]byte) ([]byte, error) {
+	if len(listorHashList) != len(b.conf.Checker) {
+		return nil, errors.New("size mismatch between Checker and given hash list")
+	}
+
+	for i, c := range b.conf.Checker {
+		if len(listorHashList[i]) != len(c.Listor) {
+			return nil, fmt.Errorf("size mismatch between Checker and given hash list of #%d", i)
+		}
+	}
+
+	// Copy conf to a var of any
+	byBaseline, err := json.Marshal(*b.conf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal conf to json: %w", err)
+	}
+
+	var objForHash any
+	if err := json.Unmarshal(byBaseline, &objForHash); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal conf from json: %w", err)
+	}
+
+	// Replace Listor of each Checker to hash of Listor
+	var objChecker []any
+	objChecker, ok := objForHash.(map[string]any)["Checker"].([]any)
+	if !ok {
+		return nil, errors.New("failed to unmarshal Checker from json")
+	}
+
+	for i, item := range objChecker {
+		objItem, ok := item.(map[string]any)
+		if !ok {
+			return nil, errors.New("failed to unmarshal Checker item from json")
+		}
+
+		delete(objItem, "Listor")
+		objItem["ListorHash"] = listorHashList[i]
+	}
+
+	// Calculate hash
+	return CalcHash(hashType, objForHash)
 }

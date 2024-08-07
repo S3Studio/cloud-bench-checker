@@ -63,6 +63,11 @@ func Test_createAliyunCloudClient(t *testing.T) {
 			args{&test.MockKeyNotSetAuthProvider{}, "", false},
 			true,
 		},
+		{
+			"nil pointor of IAuthProvider",
+			args{nil, "", false},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

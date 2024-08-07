@@ -34,7 +34,7 @@ type Listor4api struct {
 	Yaml string `json:"yaml,omitempty"`
 
 	// yaml hidden
-	YamlHidden bool `json:"yaml_hidden,omitempty"`
+	YamlHidden bool `json:"yaml_hidden"`
 }
 
 // Validate validates this listor4api

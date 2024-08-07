@@ -371,6 +371,7 @@ func Test_getPropWithCloud(t *testing.T) {
 			return rm, nil
 		})
 	defer patchCallAzure.Reset()
+	mockAuthProvider := auth.NewAuthFileProvider(def.ConfProfile{})
 
 	type args struct {
 		authProvider auth.IAuthProvider
@@ -387,7 +388,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of TencentCloud",
 			args{
-				nil, def.TENCENT_CLOUD, "mock",
+				mockAuthProvider, def.TENCENT_CLOUD, "mock",
 				&def.ConfExtractCmd{IdParamName: "mock_name", IdParamType: def.PARAM_STRING},
 			},
 			rm,
@@ -396,7 +397,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of TencentCOS",
 			args{
-				nil, def.TENCENT_COS, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.TENCENT_COS, "mock", &def.ConfExtractCmd{},
 			},
 			rm,
 			false,
@@ -404,7 +405,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of AliyunCloud",
 			args{
-				nil, def.ALIYUN_CLOUD, "mock",
+				mockAuthProvider, def.ALIYUN_CLOUD, "mock",
 				&def.ConfExtractCmd{IdParamName: "mock_name", IdParamType: def.PARAM_STRING},
 			},
 			rm,
@@ -413,7 +414,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of AliyunOSS",
 			args{
-				nil, def.ALIYUN_OSS, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.ALIYUN_OSS, "mock", &def.ConfExtractCmd{},
 			},
 			rm,
 			false,
@@ -421,7 +422,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of Azure",
 			args{
-				nil, def.AZURE, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.AZURE, "mock", &def.ConfExtractCmd{},
 			},
 			rm,
 			false,
@@ -429,7 +430,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"missing IdParamName for getting prop from tencent cloud",
 			args{
-				nil, def.TENCENT_CLOUD, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.TENCENT_CLOUD, "mock", &def.ConfExtractCmd{},
 			},
 			nil,
 			true,
@@ -437,7 +438,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"missing IdParamName for getting prop from aliyun",
 			args{
-				nil, def.ALIYUN_CLOUD, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.ALIYUN_CLOUD, "mock", &def.ConfExtractCmd{},
 			},
 			nil,
 			true,
@@ -445,7 +446,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"invalid cloud type",
 			args{
-				nil, "invalid", "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, "invalid", "mock", &def.ConfExtractCmd{},
 			},
 			nil,
 			true,

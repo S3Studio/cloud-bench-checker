@@ -4,8 +4,8 @@ package connector
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -29,6 +29,10 @@ type k8sClient struct {
 }
 
 func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
+	if p == nil {
+		return nil, errors.New("nil pointor of IAuthProvider")
+	}
+
 	kubeconfigPathname, err := p.GetProfilePathname(def.K8S)
 	if err != nil {
 		return nil, err
@@ -36,7 +40,8 @@ func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPathname)
 	if err != nil {
-		return nil, err
+		// Do not use value of err to avoid leaking the file path
+		return nil, errors.New("unable to read kube config file")
 	}
 
 	var client k8sClient
@@ -63,25 +68,16 @@ func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
 }
 
 var (
-	_mapK8sClient sync.Map
+	_mapK8sClient def.SyncMap[*k8sClient]
 
 	_rlK8sCloud = ratelimit.New(10, ratelimit.WithoutSlack)
 )
 
 func getK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
 	key := fmt.Sprintf("%p_default", p)
-	client, ok := _mapK8sClient.Load(key)
-	if !ok {
-		newClient, err := createK8sClient(p)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create k8s client: %w", err)
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		client, _ = _mapK8sClient.LoadOrStore(key, newClient)
-	}
-
-	return client.(*k8sClient), nil
+	return _mapK8sClient.LoadOrCreate(key, func() (any, error) {
+		return createK8sClient(p)
+	}, nil)
 }
 
 // CallK8sList: Send a request to a k8s server to list resources.

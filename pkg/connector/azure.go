@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -28,6 +27,10 @@ const (
 )
 
 func createAzureClient(p auth.IAuthProvider) (*arm.Client, error) {
+	if p == nil {
+		return nil, errors.New("nil pointor of IAuthProvider")
+	}
+
 	v, err := p.GetProfile(def.AZURE)
 	if err != nil {
 		return nil, err
@@ -49,25 +52,16 @@ func createAzureClient(p auth.IAuthProvider) (*arm.Client, error) {
 }
 
 var (
-	_mapAzureClient sync.Map
+	_mapAzureClient def.SyncMap[*arm.Client]
 
 	_rlAzure = ratelimit.New(10, ratelimit.WithoutSlack)
 )
 
 func getAzureClient(p auth.IAuthProvider) (*arm.Client, error) {
 	key := fmt.Sprintf("%p_default", p)
-	client, ok := _mapAzureClient.Load(key)
-	if !ok {
-		newClient, err := createAzureClient(p)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create Azure client: %w", err)
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		client, _ = _mapAzureClient.LoadOrStore(key, newClient)
-	}
-
-	return client.(*arm.Client), nil
+	return _mapAzureClient.LoadOrCreate(key, func() (any, error) {
+		return createAzureClient(p)
+	}, nil)
 }
 
 // Need to be checked before decommenting

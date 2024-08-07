@@ -39,6 +39,8 @@ func configureAPI(api *operations.CloudBenchCheckerAPIAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	setupHandler(api)
+
 	if api.BaselineGetBaselineGetDefinitionHandler == nil {
 		api.BaselineGetBaselineGetDefinitionHandler = baseline.GetBaselineGetDefinitionHandlerFunc(func(params baseline.GetBaselineGetDefinitionParams) middleware.Responder {
 			return middleware.NotImplemented("operation baseline.GetBaselineGetDefinition has not yet been implemented")

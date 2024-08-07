@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -25,6 +24,10 @@ const (
 )
 
 func createAliyunCloudClient(p auth.IAuthProvider, endpoint string, bEpWithRegion bool) (*openapi.Client, error) {
+	if p == nil {
+		return nil, errors.New("nil pointor of IAuthProvider")
+	}
+
 	v, err := p.GetProfile(def.ALIYUN_CLOUD)
 	if err != nil {
 		return nil, err
@@ -47,25 +50,16 @@ func createAliyunCloudClient(p auth.IAuthProvider, endpoint string, bEpWithRegio
 }
 
 var (
-	_mapAliyunCloudClient sync.Map
+	_mapAliyunCloudClient def.SyncMap[*openapi.Client]
 
 	_rlAliyunCloud = ratelimit.New(10, ratelimit.WithoutSlack)
 )
 
 func getAliyunCloudClient(p auth.IAuthProvider, endpoint string, bEpWithRegion bool) (*openapi.Client, error) {
 	key := fmt.Sprintf("%p_%s", p, endpoint)
-	client, ok := _mapAliyunCloudClient.Load(key)
-	if !ok {
-		newClient, err := createAliyunCloudClient(p, endpoint, bEpWithRegion)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create aliyun client: %w", err)
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		client, _ = _mapAliyunCloudClient.LoadOrStore(key, newClient)
-	}
-
-	return client.(*openapi.Client), nil
+	return _mapAliyunCloudClient.LoadOrCreate(key, func() (any, error) {
+		return createAliyunCloudClient(p, endpoint, bEpWithRegion)
+	}, nil)
 }
 
 // CallAliyunCloud: Send a request to Aliyun and parse response
