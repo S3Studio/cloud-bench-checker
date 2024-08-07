@@ -1,0 +1,458 @@
+swagger: "2.0"
+info:
+  description: |
+    API for https://github.com/S3Studio/cloud-bench-checker described with Swagger 2.0
+  version: "0.2.0"
+  title: Cloud Bench Checker API
+  contact:
+    url: https://github.com/S3Studio/cloud-bench-checker
+  license:
+    name: "MIT License"
+    url: "https://github.com/S3Studio/cloud-bench-checker?tab=MIT-1-ov-file"
+basePath: "/api"
+
+tags:
+  - name: listor
+    description: Used to retrieve a list of resources and their basic information from the cloud with connector
+  - name: checker
+    description: Used to extract required properties and validate that they meet the requirements of benchmark guidelines
+  - name: baseline
+    description: Used to manage checkers and listors. It is recommended that each baseline corresponds to a single benchmark recommendation
+
+definitions:
+  error_response:
+    type: object
+    properties:
+      code:
+        type: integer
+      msg:
+        type: string
+      data:
+        type: object
+  item_hash:
+    type: object
+    properties:
+      sha256:
+        type: string
+  cloudtype4api:
+    type: string
+    enum:
+      - tencent_cloud
+      - tencent_cos
+      - aliyun
+      - aliyun_oss
+      - k8s
+      - azure
+  listor4api:
+    type: object
+    properties:
+      id:
+        type: integer
+      cloud_type:
+        $ref: "#/definitions/cloudtype4api"
+      rs_type:
+        type: string
+      hash:
+        $ref: "#/definitions/item_hash"
+      yaml_hidden:
+        type: boolean
+      yaml:
+        type: string
+  checker4api:
+    type: object
+    properties:
+      cloud_type:
+        $ref: "#/definitions/cloudtype4api"
+      listor:
+        type: array
+        items:
+          type: integer
+  baseline4api:
+    type: object
+    properties:
+      id:
+        type: integer
+      tag:
+        type: array
+        items:
+          type: string
+      metadata:
+        type: object
+        additionalProperties:
+          # key: field
+          type: string
+      checker:
+        type: array
+        items:
+          $ref: "#/definitions/checker4api"
+      hash:
+        $ref: "#/definitions/item_hash"
+      yaml_hidden:
+        type: boolean
+      yaml:
+        type: string
+  listor_data:
+    type: object
+    properties:
+      listor_id:
+        type: integer
+      listor_hash:
+        $ref: "#/definitions/item_hash"
+      cloud_type:
+        $ref: "#/definitions/cloudtype4api"
+      data:
+        type: string
+  baseline_data:
+    type: object
+    properties:
+      id:
+        type: integer
+      baseline_hash:
+        $ref: "#/definitions/item_hash"
+      checker_prop:
+        type: array
+        items:
+          type: string
+  validate_result:
+    type: object
+    properties:
+      cloud_type:
+        type: string
+      resource_id:
+        type: string
+      resource_name:
+        type: string
+      actual_value:
+        type: string
+      resource_in_risk:
+        type: boolean
+      metadata:
+        type: object
+        additionalProperties:
+          # key: field
+          type: string
+
+paths:
+  /listor/getIds:
+    get:
+      description: Get ids of Listor
+      produces:
+        - "application/json"
+      parameters:
+        - description: Cloud type to filter
+          in: query
+          name: cloud_type
+          required: false
+          type: string
+      responses:
+        200:
+          description: Ids of Listor
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  type: integer
+      tags:
+        - listor
+  /listor/getDefinition:
+    get:
+      description: Get definition of a Listor
+      produces:
+        - "application/json"
+      parameters:
+        - description: Id of Listor
+          in: query
+          name: id
+          required: true
+          type: integer
+        - description: Include hash of definition
+          in: query
+          name: with_hash
+          required: false
+          type: boolean
+          default: false
+        - description: Include yaml of definition
+          in: query
+          name: with_yaml
+          required: false
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Definition of a Listor
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/listor4api"
+        404:
+          description: Id not found
+          schema:
+            $ref: "#/responses/notfound"
+      tags:
+        - listor
+  /listor/listData:
+    get:
+      description: Get list of all raw data according to the definition
+      produces:
+        - "application/json"
+      parameters:
+        - description: Id of Listor
+          in: query
+          name: id
+          required: true
+          type: integer
+        - description: Name of authentication profile
+          in: header
+          name: profile
+          required: true
+          type: string
+      responses:
+        200:
+          description: List of raw data
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                $ref: "#/definitions/listor_data"
+        404:
+          description: Id not found
+          schema:
+            $ref: "#/responses/notfound"
+        400:
+          description: Error occurs
+          schema:
+            $ref: "#/responses/error"
+      tags:
+        - listor
+  /baseline/getIds:
+    get:
+      description: Get ids of Baseline
+      produces:
+        - "application/json"
+      parameters:
+        - description: Tag to filter
+          in: query
+          name: tag
+          required: false
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+      responses:
+        200:
+          description: Ids of Baseline
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  type: integer
+      tags:
+        - baseline
+  /baseline/getDefinition:
+    get:
+      description: Get definition of a Baseline
+      produces:
+        - "application/json"
+      parameters:
+        - description: Id of Baseline
+          in: query
+          name: id
+          required: true
+          type: integer
+        - description: Include hash of definition
+          in: query
+          name: with_hash
+          required: false
+          type: boolean
+          default: false
+        - description: Include yaml of definition
+          in: query
+          name: with_yaml
+          required: false
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Definition of a Baseline
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/baseline4api"
+        404:
+          description: Id not found
+          schema:
+            $ref: "#/responses/notfound"
+      tags:
+        - baseline
+  /baseline/getListorId:
+    get:
+      description: Get the ids of the Listors used in all the Checkers of the Baseline
+      produces:
+        - "application/json"
+      parameters:
+        - description: Id of Baseline
+          in: query
+          name: id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Ids of Listors
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  type: integer
+        404:
+          description: Id not found
+          schema:
+            $ref: "#/responses/notfound"
+      tags:
+        - baseline
+  /baseline/getProp:
+    post:
+      description: Extract properties from the raw data
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - description: Id of Baseline
+          in: query
+          name: id
+          required: true
+          type: integer
+        - description: Name of authentication profile
+          in: header
+          name: profile
+          required: true
+          type: string
+        - description: List of raw data from Listor
+          in: body
+          name: listor_data
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/listor_data"
+      responses:
+        200:
+          description: List of the result of GetProp of each Checker
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/baseline_data"
+        404:
+          description: Id not found
+          schema:
+            $ref: "#/responses/notfound"
+        400:
+          description: Error occurs
+          schema:
+            $ref: "#/responses/error"
+      tags:
+        - baseline
+  /baseline/validate:
+    post:
+      description: Validate the property against the benchmark and return the result
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - description: Id of Baseline
+          in: query
+          name: id
+          required: true
+          type: integer
+        - description: Metadata of Baseline to be outputted
+          in: query
+          name: metadata
+          required: false
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+        - description: List of properties to be validated
+          in: body
+          name: data
+          required: true
+          schema:
+            $ref: "#/definitions/baseline_data"
+      responses:
+        200:
+          description: List of validation results
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              msg:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/definitions/validate_result"
+        404:
+          description: Id not found
+          schema:
+            $ref: "#/responses/notfound"
+        400:
+          description: Error occurs
+          schema:
+            $ref: "#/responses/error"
+      tags:
+        - baseline
+
+responses:
+  notfound:
+    description: Entity not found.
+    schema:
+      $ref: '#/definitions/error_response'
+  error:
+    description: General Error
+    schema:
+      $ref: '#/definitions/error_response'
