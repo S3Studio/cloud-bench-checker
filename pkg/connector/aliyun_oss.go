@@ -39,7 +39,7 @@ func createAliyunOSSClient(p auth.IAuthProvider) (*oss.Client, error) {
 }
 
 var (
-	_mapAliyunOSSClient def.SyncMap[*oss.Client]
+	_mapAliyunOSSClient internal.SyncMap[*oss.Client]
 
 	_rlAliyunOSS = ratelimit.New(10, ratelimit.WithoutSlack)
 )

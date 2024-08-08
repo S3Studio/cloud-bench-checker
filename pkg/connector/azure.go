@@ -52,7 +52,7 @@ func createAzureClient(p auth.IAuthProvider) (*arm.Client, error) {
 }
 
 var (
-	_mapAzureClient def.SyncMap[*arm.Client]
+	_mapAzureClient internal.SyncMap[*arm.Client]
 
 	_rlAzure = ratelimit.New(10, ratelimit.WithoutSlack)
 )

@@ -44,7 +44,7 @@ func createTencentCloudClient(p auth.IAuthProvider) (*common.Client, error) {
 }
 
 var (
-	_mapTencentCloudClient def.SyncMap[*common.Client]
+	_mapTencentCloudClient internal.SyncMap[*common.Client]
 
 	_rlTencentCloud = ratelimit.New(10, ratelimit.WithoutSlack)
 )

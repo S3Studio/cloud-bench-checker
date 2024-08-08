@@ -46,7 +46,7 @@ var (
 	_confValid  bool = false
 	_yamlHidden bool = false
 
-	_mapInstance def.SyncMap[any]
+	_mapInstance internal.SyncMap[any]
 )
 
 func getInstance(insType string, id int, fnCreate func() (any, error)) (any, error) {

@@ -50,7 +50,7 @@ func createAliyunCloudClient(p auth.IAuthProvider, endpoint string, bEpWithRegio
 }
 
 var (
-	_mapAliyunCloudClient def.SyncMap[*openapi.Client]
+	_mapAliyunCloudClient internal.SyncMap[*openapi.Client]
 
 	_rlAliyunCloud = ratelimit.New(10, ratelimit.WithoutSlack)
 )

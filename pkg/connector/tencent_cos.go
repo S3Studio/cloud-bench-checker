@@ -59,7 +59,7 @@ func createTencentCOSClient(p auth.IAuthProvider, bucketName string) (*cos.Clien
 }
 
 var (
-	_mapTencentCOSClient def.SyncMap[*cos.Client]
+	_mapTencentCOSClient internal.SyncMap[*cos.Client]
 
 	_rlTencentCOS = ratelimit.New(10, ratelimit.WithoutSlack)
 )

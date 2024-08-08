@@ -68,7 +68,7 @@ func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
 }
 
 var (
-	_mapK8sClient def.SyncMap[*k8sClient]
+	_mapK8sClient internal.SyncMap[*k8sClient]
 
 	_rlK8sCloud = ratelimit.New(10, ratelimit.WithoutSlack)
 )

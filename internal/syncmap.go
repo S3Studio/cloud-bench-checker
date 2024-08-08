@@ -1,5 +1,5 @@
-// Util of SyncMap
-package definition
+// SyncMap util
+package internal
 
 import "sync"
 

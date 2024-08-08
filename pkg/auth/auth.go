@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/s3studio/cloud-bench-checker/internal"
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
 
 	"github.com/spf13/viper"
@@ -33,7 +34,7 @@ type AuthFileProvider struct {
 	// Definition of profile
 	profile def.ConfProfile
 	// sync.Map which stores the cache of vipers of profile
-	mapViper def.SyncMap[*viper.Viper]
+	mapViper internal.SyncMap[*viper.Viper]
 }
 
 // NewAuthFileProvider: Constructor of AuthFileProvider

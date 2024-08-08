@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/s3studio/cloud-bench-checker/internal"
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
 
 	"github.com/spf13/viper"
@@ -30,7 +31,7 @@ func (e ProfileNotDefinedError) Error() string {
 	return fmt.Sprintf("no profile defined for cloud: %s", e.key)
 }
 
-var mapViper def.SyncMap[*viper.Viper]
+var mapViper internal.SyncMap[*viper.Viper]
 
 // GetProfile: Implementation of IAuthProvider.GetProfile
 // @param: cloudType: Type of the cloud, omitted in this implementation of IAuthProvider
