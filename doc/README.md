@@ -1,5 +1,8 @@
 # Documentation
 
+## Usage
+* [Command tool](./Usage_command_tool.md)
+
 ## Reference
 * [Baseline config reference](./Baseline.md)
 * [Cloud authorization reference](./Auth.md)
