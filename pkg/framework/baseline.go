@@ -185,6 +185,9 @@ func (b *Baseline) GetHash(hashType crypto.Hash, listorHashList [][]*[]byte) ([]
 
 		delete(objItem, "Listor")
 		objItem["ListorHash"] = listorHashList[i]
+
+		// Also remove validation info
+		delete(objItem, "Validator")
 	}
 
 	// Calculate hash
