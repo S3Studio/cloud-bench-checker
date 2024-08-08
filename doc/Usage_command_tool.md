@@ -79,6 +79,7 @@ Alternatively, a custom image can be built with the [Dockerfile](/Dockerfile) us
 ```sh
 docker build -t {image_name} -f ./Dockerfile .
 ```
+
 ### Command to start Docker container
 Considering the template of the following command:
 ```sh

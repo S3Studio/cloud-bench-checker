@@ -2,6 +2,7 @@
 
 ## Usage
 * [Command tool](./Usage_command_tool.md)
+* [API server](./Usage_apiserver.md)
 
 ## Reference
 * [Baseline config reference](./Baseline.md)
