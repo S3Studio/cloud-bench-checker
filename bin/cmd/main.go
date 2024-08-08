@@ -282,7 +282,7 @@ func main() {
 					break
 				}
 
-				log.Printf("%d result(s) are outputed", len(outputData))
+				log.Printf("%d result(s) are outputted", len(outputData))
 			case def.OUTPUT_FORMAT_CSV:
 				file.WriteString("\xEF\xBB\xBF")                      // UTF8-BOM for Excel
 				regNum := regexp.MustCompile(`^(\d*\.)?\d+(\.\d*)?$`) // Check numberic value
@@ -318,7 +318,7 @@ func main() {
 				}
 
 				w.Flush()
-				log.Printf("%d result(s) are outputed", len(outputData))
+				log.Printf("%d result(s) are outputted", len(outputData))
 			}
 		}
 	} else {
