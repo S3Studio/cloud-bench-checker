@@ -29,16 +29,28 @@ Avaliable values:
 Defines the filename of the output containing the result.
 
 ### output_metadata
+> Ignored in apiserver. The value requested by the user is used.
+
 Defines fields to be extracted from the `metadata` properties of each baseline and output to the file.
 
 If the specified field doesn't exist in the baseline, the output value for the field will be empty.
 
 ### output_risk_only
+> Ignored in apiserver. The value requested by the user is used.
+
 Defines how to filter and output the result. Type: Boolean
 
 Avaliable values:
 * true: Only output results with cloud resources in risk (failing the benchmark check)
 * false: Output all cloud resources that have been checked by baseline, with no filter
+
+### server_hide_yaml
+> * Added from project version 0.2.0
+> * Used in apiserver
+
+Indicates whether to output yaml definitions in response if requested. Type: Boolean
+
+Useful in situations where the details of the conf file are not appropriate to show to the user of apiserver.
 
 ---
 

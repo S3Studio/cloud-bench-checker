@@ -42,9 +42,8 @@ type generalError struct {
 const CONF_FILE_NAME = "config.conf"
 
 var (
-	_conf       def.ConfFile
-	_confValid  bool = false
-	_yamlHidden bool = false
+	_conf      def.ConfFile
+	_confValid bool = false
 
 	_mapInstance internal.SyncMap[any]
 )
@@ -195,8 +194,8 @@ func baselineGetBaselineGetDefinitionHandler(params baseline.GetBaselineGetDefin
 	}
 
 	if params.WithYaml != nil && *params.WithYaml {
-		b4api.YamlHidden = _yamlHidden
-		if !_yamlHidden {
+		b4api.YamlHidden = _conf.Option.ServerHideYaml
+		if !_conf.Option.ServerHideYaml {
 			byBaseline, err := yaml.Marshal(b)
 			if err != nil {
 				return middleware.Error(500, generalError{
@@ -325,8 +324,8 @@ func listorGetListorGetDefinitionHandler(params listor.GetListorGetDefinitionPar
 	}
 
 	if params.WithYaml != nil && *params.WithYaml {
-		l4api.YamlHidden = _yamlHidden
-		if !_yamlHidden {
+		l4api.YamlHidden = _conf.Option.ServerHideYaml
+		if !_conf.Option.ServerHideYaml {
 			byListor, err := yaml.Marshal(l)
 			if err != nil {
 				return middleware.Error(500, generalError{
