@@ -1,4 +1,4 @@
-// Auth controller for api-server
+// Auth controller for apiserver
 package server
 
 import (

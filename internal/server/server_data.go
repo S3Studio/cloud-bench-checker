@@ -1,4 +1,4 @@
-// Data provider for api-server
+// Data provider for apiserver
 package server
 
 import (
@@ -60,6 +60,10 @@ func (p *listDataProvider) GetCloudTypeByListorId(listorId int) (string, error) 
 	return string(value.CloudType), nil
 }
 
+// GetListorHashByListorId: Get hash of listor from request data
+// @param: listorId: Id of listor
+// @return: Hash of listor
+// @return: Error
 func (p *listDataProvider) GetListorHashByListorId(listorId int) (*server_model.ItemHash, error) {
 	var value *server_model.ListorData
 

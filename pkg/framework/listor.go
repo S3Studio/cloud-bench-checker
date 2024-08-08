@@ -73,6 +73,7 @@ func (l *Listor) SetAuthProvider(authProvider auth.IAuthProvider) {
 //
 // Raw data from different pages are merged where necessary.
 // Listor.GetOnePage is called to retrieve data as an implementation of IPaginator.
+// @param: opts: Options to pass to GetEntireList, and finally Listor.GetOnePage
 // @return: List of raw data
 // @return: Error
 func (l *Listor) ListData(opts ...GetPageOption) ([]*json.RawMessage, error) {
@@ -83,6 +84,7 @@ func (l *Listor) ListData(opts ...GetPageOption) ([]*json.RawMessage, error) {
 //
 // See function of GetEntireList in pagination for details of paginationParam
 // @param: paginationParam: Parameter of each page
+// @param: opts: Additional options
 // @return: List of data on one page
 // @return: NextCondition, See function of GetEntireList in pagination for detail
 // @return: Error
@@ -228,6 +230,17 @@ func (l *Listor) GetOnePage(paginationParam map[string]any, opts ...GetPageOptio
 	}
 }
 
+// GetHash: Get the hash of the Listor
+//
+// The hash value is useful to ensure data is provided from the same Listor.
+// Before calculation, a conversion from conf struct to unmarshaled json object is required,
+// so that the order of keys in the json object remains stable.
+//
+// The id of listor is removed to avoid being affected by id remapping in different servers.
+//
+// @param: hashType: Method of hash
+// @return: Hash value
+// @return: Error
 func (l *Listor) GetHash(hashType crypto.Hash) ([]byte, error) {
 	// Copy conf to a var of object
 	byListor, err := json.Marshal(*l.conf)

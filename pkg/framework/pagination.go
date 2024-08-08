@@ -34,6 +34,7 @@ func SetListorAuthProvider(val auth.IAuthProvider) GetPageOption {
 type IPaginator interface {
 	// See function of GetEntireList for details of paginationParam
 	// @param: paginationParam: Parameter of each page
+	// @param: opts: Additional options
 	// @return: List of data on one page
 	// @return: NextCondition, See function GetEntireList for detail
 	// @return: Error
@@ -75,6 +76,7 @@ type NextCondition struct {
 //
 // @param: p: Implementation of interface IPaginator to get data of one page
 // @param: conf: Definition of ConfPaginator
+// @param: opts: Options to pass to IPaginator.GetOnePage
 // @return: List of data merged from all pages
 // @return: Error
 func GetEntireList(p IPaginator, conf def.ConfPaginator, opts ...GetPageOption) ([]*json.RawMessage, error) {

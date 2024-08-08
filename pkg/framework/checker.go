@@ -104,6 +104,7 @@ func SetDataProviderOpt(val IDataProvider) GetPropOption {
 type CheckerPropList []*CheckerProp
 
 // GetProp: Extract Id, Name (if required) and properties of the raw data
+// @param: opts: Additional options
 // @return: List of properties extracted from raw data
 // @return: Error
 func (c *Checker) GetProp(opts ...GetPropOption) (CheckerPropList, error) {
