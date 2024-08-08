@@ -131,16 +131,24 @@ func TestChecker_GetProp(t *testing.T) {
 	checkerInvalid := setupCheckerData()
 	checkerInvalid.SetDataProvider(&dpInvalid)
 	rm, _ := internal.JsonMarshal("mock")
+	mockDp := SyncMapDataProvider{}
+	mockDp.DataMap.Store(1, []*json.RawMessage{rm})
+	mockDp.CtMap.Store(1, VALID_CT)
 
+	type args struct {
+		opts []GetPropOption
+	}
 	tests := []struct {
 		name    string
 		c       *Checker
+		args    args
 		want    CheckerPropList
 		wantErr bool
 	}{
 		{
 			"Valid result",
 			checker,
+			args{nil},
 			CheckerPropList{
 				{Id: "mock", Prop: rm},
 			},
@@ -149,37 +157,64 @@ func TestChecker_GetProp(t *testing.T) {
 		{
 			"Valid result with empty IDataProvider",
 			checkerEmpty,
+			args{nil},
 			nil,
+			false,
+		},
+		{
+			"Valid result with IAuthProvider in opts",
+			checker,
+			args{
+				[]GetPropOption{SetAuthProviderOpt(&auth.AuthFileProvider{})},
+			},
+			CheckerPropList{
+				{Id: "mock", Prop: rm},
+			},
+			false,
+		},
+		{
+			"Valid result with IDataProvider in opts",
+			checker,
+			args{
+				[]GetPropOption{SetDataProviderOpt(&mockDp)},
+			},
+			CheckerPropList{
+				{Id: "mock", Prop: rm},
+			},
 			false,
 		},
 		{
 			"failed to get raw data, provider is nil",
 			checkerNil,
+			args{nil},
 			nil,
 			true,
 		},
 		{
 			"failed to get cloud type from provider",
 			checkerInvalidCt,
+			args{nil},
 			nil,
 			true,
 		},
 		{
 			"cloud type of data \"%s\" mismatch cloud type of Checker",
 			checkerCtMismatch,
+			args{nil},
 			nil,
 			true,
 		},
 		{
 			"failed to get raw data from provider",
 			checkerInvalid,
+			args{nil},
 			nil,
 			true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.c.GetProp()
+			got, err := tt.c.GetProp(tt.args.opts...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Checker.GetProp() error = %v, wantErr %v", err, tt.wantErr)
 				return

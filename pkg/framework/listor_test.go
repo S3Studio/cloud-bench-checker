@@ -3,16 +3,17 @@
 package framework
 
 import (
+	"crypto"
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
 	"github.com/s3studio/cloud-bench-checker/pkg/connector"
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
-
-	"github.com/agiledragon/gomonkey/v2"
 )
 
 func TestNewListor(t *testing.T) {
@@ -104,6 +105,7 @@ func TestListor_GetOnePage(t *testing.T) {
 
 	type args struct {
 		paginationParam map[string]any
+		opts            []GetPageOption
 	}
 	tests := []struct {
 		name    string
@@ -118,7 +120,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			"Valid result of TencentCloud",
 			NewListor(&def.ConfListor{CloudType: def.TENCENT_CLOUD}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{nil},
+			args{nil, nil},
 			rmList,
 			NextCondition{},
 			false,
@@ -127,7 +129,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			"Valid result of TencentCOS",
 			NewListor(&def.ConfListor{CloudType: def.TENCENT_COS}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{nil},
+			args{nil, nil},
 			rmList,
 			NextCondition{},
 			false,
@@ -136,7 +138,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			"Valid result of AliyunCloud",
 			NewListor(&def.ConfListor{CloudType: def.ALIYUN_CLOUD}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{nil},
+			args{nil, nil},
 			rmList,
 			NextCondition{},
 			false,
@@ -145,7 +147,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			"Valid result of AliyunOSS",
 			NewListor(&def.ConfListor{CloudType: def.ALIYUN_OSS}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{nil},
+			args{nil, nil},
 			rmList,
 			NextCondition{},
 			false,
@@ -154,7 +156,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			"Valid result of K8s",
 			NewListor(&def.ConfListor{CloudType: def.K8S}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{nil},
+			args{nil, nil},
 			rmList,
 			NextCondition{},
 			false,
@@ -167,7 +169,16 @@ func TestListor_GetOnePage(t *testing.T) {
 					ExtraParam: map[string]any{"mock_key": "mock_val"},
 				},
 			},
-			args{make(map[string]any)},
+			args{make(map[string]any), nil},
+			rmList,
+			NextCondition{},
+			false,
+		},
+		{
+			"Valid result with IAuthProvider in opts",
+			NewListor(&def.ConfListor{CloudType: def.TENCENT_CLOUD}, nil),
+			def.ConfListCmd{},
+			args{nil, []GetPageOption{SetListorAuthProvider(mockAuthProvider)}},
 			rmList,
 			NextCondition{},
 			false,
@@ -176,7 +187,7 @@ func TestListor_GetOnePage(t *testing.T) {
 			"invalid cloud type",
 			NewListor(&def.ConfListor{CloudType: "invalid"}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{nil},
+			args{nil, nil},
 			nil,
 			NextCondition{},
 			true,
@@ -185,7 +196,7 @@ func TestListor_GetOnePage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.l.conf.ListCmd = tt.v
-			got, got1, err := tt.l.GetOnePage(tt.args.paginationParam)
+			got, got1, err := tt.l.GetOnePage(tt.args.paginationParam, tt.args.opts...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Listor.GetOnePage() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -195,6 +206,39 @@ func TestListor_GetOnePage(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got1, tt.want1) {
 				t.Errorf("Listor.GetOnePage() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func TestListor_GetHash(t *testing.T) {
+	type args struct {
+		hashType crypto.Hash
+	}
+	tests := []struct {
+		name    string
+		l       *Listor
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Valid result",
+			NewListor(&def.ConfListor{}, nil),
+			args{crypto.SHA256},
+			"471747ecadce9852b70ed3fa83b8b1582f6e3005121a0f4bc3c4048a6cb2c216", // hardcode value
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.l.GetHash(tt.args.hashType)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Listor.GetHash() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && fmt.Sprintf("%x", got) != tt.want {
+				t.Errorf("Listor.GetHash() = %v, want %v", fmt.Sprintf("%x", got), tt.want)
 			}
 		})
 	}

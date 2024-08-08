@@ -3,14 +3,15 @@
 package framework
 
 import (
+	"crypto"
 	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/agiledragon/gomonkey/v2"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
-
-	"github.com/agiledragon/gomonkey/v2"
 )
 
 var (
@@ -242,6 +243,75 @@ func TestBaseline_GetMetadata(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.b.GetMetadata(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Baseline.GetMetadata() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBaseline_GetHash(t *testing.T) {
+	mockHash := []byte("1")
+
+	type args struct {
+		hashType       crypto.Hash
+		listorHashList [][]*[]byte
+	}
+	tests := []struct {
+		name    string
+		b       *Baseline
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"Valid result",
+			NewBaseline(&def.ConfBaseline{
+				Checker: []def.ConfChecker{{Listor: []int{1}}},
+			}, nil, nil),
+			args{
+				crypto.SHA256,
+				[][]*[]byte{
+					{&mockHash},
+				},
+			},
+			"d00701fd7e5e81a594329de7bf063a60e8dc803f95a30b3afc089b1b14338589", // hardcode value
+			false,
+		},
+		{
+			"size mismatch between Checker and given hash list",
+			NewBaseline(&def.ConfBaseline{
+				Checker: []def.ConfChecker{{Listor: []int{1}}},
+			}, nil, nil),
+			args{
+				crypto.SHA256,
+				[][]*[]byte{},
+			},
+			"",
+			true,
+		},
+		{
+			"size mismatch between Checker and given hash list",
+			NewBaseline(&def.ConfBaseline{
+				Checker: []def.ConfChecker{{Listor: []int{1}}},
+			}, nil, nil),
+			args{
+				crypto.SHA256,
+				[][]*[]byte{
+					{&mockHash, &mockHash},
+				},
+			},
+			"",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.b.GetHash(tt.args.hashType, tt.args.listorHashList)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Baseline.GetHash() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !tt.wantErr && fmt.Sprintf("%x", got) != tt.want {
+				t.Errorf("Baseline.GetHash() = %v, want %v", fmt.Sprintf("%x", got), tt.want)
 			}
 		})
 	}
