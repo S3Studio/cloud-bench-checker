@@ -359,7 +359,7 @@ func (c *Checker) Validate(data CheckerPropList) ([]*ValidateResult, error) {
 	return validateResultList, nil
 }
 
-// createValidator: Try to create validator according to defination of Checker.conf.Validator
+// createValidator: Try to create validator according to definition of Checker.conf.Validator
 //
 // If failed, the same error will not be repeated on the next call
 // @return: Error

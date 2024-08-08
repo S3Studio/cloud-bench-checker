@@ -70,7 +70,7 @@ func CallAliyunOSS(authProvider auth.IAuthProvider, bucketName string, action st
 	}
 
 	if len(bucketName) == 0 {
-		// Only ListBuckets action avaliable when listing buckets
+		// Only ListBuckets action available when listing buckets
 		action = "ListBuckets"
 	}
 

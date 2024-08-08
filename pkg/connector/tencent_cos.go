@@ -88,7 +88,7 @@ func CallTencentCOS(authProvider auth.IAuthProvider, bucketName string, service 
 	}
 
 	if len(bucketName) == 0 {
-		// Only Service.Get is avaliable when listing buckets
+		// Only Service.Get is available when listing buckets
 		service = "Service"
 		action = "Get"
 	}
