@@ -116,14 +116,14 @@ Please see [documentation](doc).
 - [ ] Versioning and compatibility for config file
 - [ ] Interaction
     - [x] command tool
-    - [ ] api
+    - [x] api
     - [ ] webui
 - [ ] Tool
     - [x] baseline config manager: [project](example/baseline_manager)
     - [ ] building support
     - [x] dockerize support: [package](https://github.com/S3Studio/cloud-bench-checker/pkgs/container/cloud-bench-checker)
-- [ ] Doc
+- [x] Doc
     - [x] usage
         - [x] [auth file format](doc/Auth.md)
     - [x] [baseline config format](doc/Baseline.md)
-    - [ ] api
+    - [x] [api](doc/api_swagger.yml)
