@@ -27,7 +27,8 @@ func (p *listDataProvider) GetRawDataByListorId(listorId int) ([]*json.RawMessag
 		}
 	}
 	if value == nil {
-		return nil, fmt.Errorf("no data provided with id of: %d", listorId)
+		// No data of Listor in the cloud
+		return nil, nil
 	}
 
 	var provideValue []*json.RawMessage
@@ -52,7 +53,8 @@ func (p *listDataProvider) GetCloudTypeByListorId(listorId int) (string, error) 
 		}
 	}
 	if value == nil {
-		return "", fmt.Errorf("no data provided with id of: %d", listorId)
+		// No data of Listor in the cloud
+		return "", nil
 	}
 
 	return string(value.CloudType), nil
@@ -68,7 +70,8 @@ func (p *listDataProvider) GetListorHashByListorId(listorId int) (*server_model.
 		}
 	}
 	if value == nil {
-		return nil, fmt.Errorf("no data provided with id of: %d", listorId)
+		// No data of Listor in the cloud
+		return nil, nil
 	} else if value.ListorHash == nil {
 		return nil, fmt.Errorf("nil hash pointer in data with id of: %d", listorId)
 	}

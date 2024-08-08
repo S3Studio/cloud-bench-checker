@@ -468,28 +468,31 @@ func baselinePostBaselineGetPropHandler(params baseline.PostBaselineGetPropParam
 			if provideCloudType, err := dataProvider.GetCloudTypeByListorId(id); err != nil {
 				return baseline.NewPostBaselineGetPropBadRequest().WithPayload(
 					generalError{Code: 400, Msg: fmt.Sprintf("%v", err)})
+			} else if provideCloudType == "" {
+				// No data of Listor in the cloud
+				continue
 			} else if provideCloudType != string(c.CloudType) {
 				return baseline.NewPostBaselineGetPropBadRequest().WithPayload(
 					generalError{Code: 400, Msg: fmt.Sprintf("Cloud type mismatch between %s and %s",
 						provideCloudType, c.CloudType)})
 			}
 
-			providedListorHash, err := dataProvider.GetListorHashByListorId(id)
-			if err != nil {
+			if providedListorHash, err := dataProvider.GetListorHashByListorId(id); err != nil {
 				return baseline.NewPostBaselineGetPropBadRequest().WithPayload(
 					generalError{Code: 400, Msg: fmt.Sprintf("%v", err)})
-			}
-			byHash, err := getListorHash(id)
-			if err != nil {
-				return middleware.Error(500, generalError{
-					Code: 500,
-					Msg:  fmt.Sprintf("Failed to get Listor hash: %v", err),
-				})
-			}
+			} else if providedListorHash != nil {
+				byHash, err := getListorHash(id)
+				if err != nil {
+					return middleware.Error(500, generalError{
+						Code: 500,
+						Msg:  fmt.Sprintf("Failed to get Listor hash: %v", err),
+					})
+				}
 
-			if providedListorHash.Sha256 != fmt.Sprintf("%x", *byHash) {
-				return baseline.NewPostBaselineGetPropBadRequest().WithPayload(
-					generalError{Code: 400, Msg: "Listor hash mismatch"})
+				if providedListorHash.Sha256 != fmt.Sprintf("%x", *byHash) {
+					return baseline.NewPostBaselineGetPropBadRequest().WithPayload(
+						generalError{Code: 400, Msg: "Listor hash mismatch"})
+				}
 			}
 		}
 	}
