@@ -55,6 +55,8 @@ Useful in situations where the details of the conf file are not appropriate to s
 ---
 
 ## profile
+> Ignored in apiserver. The value requested by the user is used.
+
 Defines the name of profile for the cloud used in the benchmark check.
 
 `$ENV` (to use environment values) and filename (to use a file under ".auth" directory) are valid values.
