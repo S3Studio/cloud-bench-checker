@@ -183,6 +183,8 @@ The steps required for a client to experience the full capabilities are as follo
 1. For each result that contains porperties in the respond of the previous call,
    send it back without modification to get validation result with `/baseline/validate`.
 
+See "TestApiserverIntegration" function of the [test file](/test/apiserver/apiserver_test.go) as an example.
+
 ## Development reference
 * If the [swagger specification](/doc/api_swagger.yml) changes, use the following command to generate updated code:
 ```sh
