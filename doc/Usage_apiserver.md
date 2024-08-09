@@ -182,3 +182,9 @@ The steps required for a client to experience the full capabilities are as follo
    "profile" param is required.
 1. For each result that contains porperties in the respond of the previous call,
    send it back without modification to get validation result with `/baseline/validate`.
+
+## Development reference
+* If the [swagger specification](/doc/api_swagger.yml) changes, use the following command to generate updated code:
+```sh
+swagger generate server --spec ./doc/api_swagger.yml --model-package ./pkg/server-model --server-package ./internal/server --main-package ../bin/apiserver
+```
