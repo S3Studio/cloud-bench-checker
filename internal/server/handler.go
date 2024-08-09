@@ -19,7 +19,7 @@ import (
 	"github.com/s3studio/cloud-bench-checker/pkg/server_model"
 
 	"github.com/go-openapi/runtime/middleware"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type logger func(string, ...interface{})
