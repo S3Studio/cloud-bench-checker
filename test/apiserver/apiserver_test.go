@@ -14,7 +14,6 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
-	"time"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	swaggerserversrv "github.com/s3studio/cloud-bench-checker/internal/server"
@@ -115,16 +114,7 @@ func setupServer() http.Handler {
 
 	server.ConfigureAPI()
 
-	go server.Serve()
-
-	for {
-		handler := server.GetHandler()
-		if handler != nil {
-			return handler
-		}
-
-		time.Sleep(10 * time.Second)
-	}
+	return server.GetHandler()
 }
 
 func TestApiserverIntegration(t *testing.T) {
