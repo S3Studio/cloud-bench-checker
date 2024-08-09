@@ -95,6 +95,11 @@ func TestListor_GetOnePage(t *testing.T) {
 			return rm, nil
 		})
 	defer patchCallK8sList.Reset()
+	patchCallAzureList := gomonkey.ApplyFunc(connector.CallAzureList,
+		func(authProvider auth.IAuthProvider, provider string, version string, rsType string, nextLink string) (*json.RawMessage, error) {
+			return rm, nil
+		})
+	defer patchCallAzureList.Reset()
 	patchRDP := gomonkey.ApplyFunc(ResultDataParse,
 		func(resultData *json.RawMessage, conf def.ConfPaginator, dataListJsonPath string, opts ...RDPOption) (
 			[]*json.RawMessage, NextCondition, error) {
@@ -157,6 +162,15 @@ func TestListor_GetOnePage(t *testing.T) {
 			NewListor(&def.ConfListor{CloudType: def.K8S}, mockAuthProvider),
 			def.ConfListCmd{},
 			args{nil, nil},
+			rmList,
+			NextCondition{},
+			false,
+		},
+		{
+			"Valid result of Azure",
+			NewListor(&def.ConfListor{CloudType: def.AZURE}, nil),
+			def.ConfListCmd{},
+			args{map[string]any{}},
 			rmList,
 			NextCondition{},
 			false,

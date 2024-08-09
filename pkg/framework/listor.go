@@ -204,7 +204,7 @@ func (l *Listor) GetOnePage(paginationParam map[string]any, opts ...GetPageOptio
 		)
 	case def.AZURE:
 		// nextLink is empty on the first call of listing
-		nextLink := paginationParam[AZURE_NEXT_MARKER].(string)
+		nextLink, _ := paginationParam[AZURE_NEXT_MARKER].(string)
 
 		res, err := connector.CallAzureList(
 			authProvider,

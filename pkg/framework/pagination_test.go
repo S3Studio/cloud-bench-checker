@@ -14,6 +14,11 @@ import (
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
 )
 
+type IMockPaginator interface {
+	GetConf() def.ConfPaginator
+	GetPaginator() IPaginator
+}
+
 type mockPaginator struct {
 	conf def.ConfPaginator
 	// Indicate if length of last page is the same as limit
@@ -22,6 +27,14 @@ type mockPaginator struct {
 	noTotalCount bool
 	// If not null, return the result of the callback function
 	fnCallback cbMockPaginator
+}
+
+func (p *mockPaginator) GetConf() def.ConfPaginator {
+	return p.conf
+}
+
+func (p *mockPaginator) GetPaginator() IPaginator {
+	return p
 }
 
 type cbMockPaginator func() ([]*json.RawMessage, NextCondition, error)
@@ -206,11 +219,29 @@ func parseToInt(v any, p def.ParamType) int {
 	}
 }
 
+type mockEmptyNopaginationPaginator struct {
+	mockPaginator
+}
+
+func (p *mockEmptyNopaginationPaginator) GetPaginator() IPaginator {
+	return p
+}
+
+func (p *mockEmptyNopaginationPaginator) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage, NextCondition, error) {
+	return nil, NextCondition{}, auth.ProfileNotDefinedError{}
+}
+
 func TestGetEntireList(t *testing.T) {
 	SetPageSize(5)
+	menp := mockEmptyNopaginationPaginator{
+		mockPaginator: mockPaginator{
+			conf: def.ConfPaginator{
+				PaginationType: def.PAGE_NOPAGEINATION,
+			},
+		}}
 
 	type args struct {
-		p *mockPaginator
+		p IMockPaginator
 	}
 	tests := []struct {
 		name     string
@@ -411,6 +442,14 @@ func TestGetEntireList(t *testing.T) {
 			false,
 		},
 		{
+			"Valid PAGE_NOPAGEINATION with empty data",
+			args{
+				&menp,
+			},
+			0,
+			false,
+		},
+		{
 			"Valid PAGE_MARKER with fullLastPage==true",
 			args{
 				(&mockPaginator{
@@ -599,7 +638,7 @@ func TestGetEntireList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEntireList(tt.args.p, tt.args.p.conf)
+			got, err := GetEntireList(tt.args.p.GetPaginator(), tt.args.p.GetConf())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetEntireList() error = %v, wantErr %v", err, tt.wantErr)
 				return
