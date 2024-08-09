@@ -168,9 +168,9 @@ func TestListor_GetOnePage(t *testing.T) {
 		},
 		{
 			"Valid result of Azure",
-			NewListor(&def.ConfListor{CloudType: def.AZURE}, nil),
+			NewListor(&def.ConfListor{CloudType: def.AZURE}, mockAuthProvider),
 			def.ConfListCmd{},
-			args{map[string]any{}},
+			args{map[string]any{}, nil},
 			rmList,
 			NextCondition{},
 			false,
