@@ -5,7 +5,10 @@ name: Go test
 
 on:
   push:
-    branches: ['api_server']
+    branches: ['kind_test']
+    paths:
+      - '.github/workflows/go_test.yml'
+      - 'test/kind/**'
   pull_request:
     branches: [ "main" ]
     paths-ignore:
@@ -35,3 +38,16 @@ jobs:
     - name: Test
       # -race needs CGO_ENABLED=1
       run: go test -race -v ./...
+
+    - name: Setup Kubernetes cluster (KIND)
+      uses: helm/kind-action@v1
+      with:
+        version: v0.23.0
+        node_image: kindest/node:v1.30.0
+
+    - name: Test with KIND
+      run: |
+        kubectl cluster-info
+        kubectl describe node
+        ./main -c ./test/kind/config.conf
+        awk -F ',' 'NR!=1{print $4}' ./test.csv | diff test/kind/TestResult.txt -
