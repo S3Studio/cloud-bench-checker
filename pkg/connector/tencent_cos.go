@@ -1,4 +1,5 @@
 // Connector for Tencent COS
+
 package connector
 
 import (

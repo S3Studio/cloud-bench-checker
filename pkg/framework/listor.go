@@ -1,4 +1,5 @@
 // Listor to get raw data list from cloud
+
 package framework
 
 import (

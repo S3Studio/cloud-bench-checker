@@ -1,4 +1,5 @@
 // Checker used to get prop from raw data and validate it
+
 package framework
 
 import (

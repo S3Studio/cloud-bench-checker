@@ -1,4 +1,5 @@
 // Merge data list from multiple pages
+
 package framework
 
 import (
