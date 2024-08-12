@@ -33,7 +33,7 @@ jobs:
       run: CGO_ENABLED=0 go build -ldflags="-w -s" -v ./bin/cmd/main.go
 
     - name: Build apiserver
-      run: CGO_ENABLED=0 go build -ldflags="-w -s" -v ./bin/apiserver/main.go
+      run: CGO_ENABLED=0 go build -ldflags="-w -s" -o apiserver -v ./bin/apiserver/main.go
 
     - name: Test
       # -race needs CGO_ENABLED=1
