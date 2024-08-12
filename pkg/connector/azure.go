@@ -1,4 +1,5 @@
 // Connector for Azure using Azure Resource Manager(arm)
+
 package connector
 
 import (

@@ -1,4 +1,5 @@
 // Baseline of management for process of checking
+
 package framework
 
 import (

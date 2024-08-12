@@ -1,4 +1,5 @@
 // Util to calculate hash
+
 package framework
 
 import (
