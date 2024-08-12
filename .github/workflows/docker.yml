@@ -16,10 +16,11 @@ on:
         required: false
         type: boolean
   push:
-    branches: ['dockerize']
+    branches: ['api_server']
     paths:
       - '.github/workflows/docker.yml'
       - 'Dockerfile'
+      - 'Dockerfile-apiserver'
       - '.dockerignore'
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
@@ -38,6 +39,16 @@ jobs:
       attestations: write
       id-token: write
 
+    # create a build matrix for jobs
+    strategy:
+      matrix:
+        target: [cmd, apiserver]
+        include:
+          - target: cmd
+            postfix: ""
+          - target: apiserver
+            postfix: "-apiserver"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,7 +64,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.postfix }}
           flavor: |
             latest=${{ inputs.setLatest == true }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
@@ -64,6 +75,7 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: .
+          file: Dockerfile${{ matrix.postfix }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -72,7 +84,7 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}${{ matrix.postfix }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
       

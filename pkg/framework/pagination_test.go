@@ -54,7 +54,7 @@ func (p *mockPaginator) setFnCallback(fn cbMockPaginator) *mockPaginator {
 	return p
 }
 
-func (p *mockPaginator) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage, NextCondition, error) {
+func (p *mockPaginator) GetOnePage(paginationParam map[string]any, opts ...GetPageOption) ([]*json.RawMessage, NextCondition, error) {
 	if p.fnCallback != nil {
 		return p.fnCallback()
 	}
@@ -227,7 +227,7 @@ func (p *mockEmptyNopaginationPaginator) GetPaginator() IPaginator {
 	return p
 }
 
-func (p *mockEmptyNopaginationPaginator) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage, NextCondition, error) {
+func (p *mockEmptyNopaginationPaginator) GetOnePage(paginationParam map[string]any, opts ...GetPageOption) ([]*json.RawMessage, NextCondition, error) {
 	return nil, NextCondition{}, auth.ProfileNotDefinedError{}
 }
 

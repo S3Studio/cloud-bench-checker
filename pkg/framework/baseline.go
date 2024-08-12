@@ -2,7 +2,10 @@
 package framework
 
 import (
+	"crypto"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -59,8 +62,8 @@ func (b *Baseline) SetDataProvider(dataProvider IDataProvider) {
 	}
 }
 
-// GetListorId: Get the ids of the listors used in all the Checkers of the Baseline
-// @return: ids of listors
+// GetListorId: Get the ids of the Listors used in all the Checkers of the Baseline
+// @return: ids of Listors
 func (b *Baseline) GetListorId() []int {
 	listorIds := make([]int, 0, len(b.conf.Checker))
 
@@ -86,8 +89,9 @@ func (b *Baseline) GetListorId() []int {
 // GetProp: Extract properties from the raw data
 //
 // The length of the outer list is equal to the length of checkers
+// @param: opts: Options to pass to checker.GetProp
 // @return: List of the result of GetProp of each checker, whose' elements are the list of props extracted from raw data
-func (b *Baseline) GetProp() BaselinePropList {
+func (b *Baseline) GetProp(opts ...GetPropOption) BaselinePropList {
 	var checkerPropList = make(BaselinePropList, len(b.checker))
 
 	var waitGroup sync.WaitGroup
@@ -95,7 +99,7 @@ func (b *Baseline) GetProp() BaselinePropList {
 
 	for i, checker := range b.checker {
 		go func(target *CheckerPropList) {
-			singleCheckerProp, err := checker.GetProp()
+			singleCheckerProp, err := checker.GetProp(opts...)
 			if err != nil {
 				// Print error and skip the current checker
 				glog().Println(err)
@@ -143,4 +147,70 @@ func (b *Baseline) Validate(data BaselinePropList) ([]*ValidateResult, error) {
 // @return: metadata
 func (b *Baseline) GetMetadata() *map[string]string {
 	return &b.conf.Metadata
+}
+
+// GetHash: Get the hash of the Baseline
+//
+// The hash value is useful to ensure data is provided from the same Baseline.
+// Before calculation, a conversion from conf struct to unmarshaled json object is required,
+// so that the order of keys in the json object remains stable.
+//
+// Note:
+//  1. The id of listor is replaced by the hash of each item
+//     to avoid being affected by id remapping in different servers.
+//     The function takes a list of hashes as param
+//     so that Listor.GetHash can be called on an existing instance
+//     instead of creating a temporary one.
+//  2. Validator of the Checker is removed, so it is easy to
+//     deploy one server in an environment with access to connect to the cloud,
+//     and deploy another server to do the validation and keep the rules secret in the server only,
+//     while the data can be shared and processed between the 2 servers.
+//
+// @param: hashType: Method of hash
+// @param: listorHashList: Prepared hash of the Listors in the Checker
+// @return: Hash value
+// @return: Error
+func (b *Baseline) GetHash(hashType crypto.Hash, listorHashList [][]*[]byte) ([]byte, error) {
+	if len(listorHashList) != len(b.conf.Checker) {
+		return nil, errors.New("size mismatch between Checker and given hash list")
+	}
+
+	for i, c := range b.conf.Checker {
+		if len(listorHashList[i]) != len(c.Listor) {
+			return nil, fmt.Errorf("size mismatch between Checker and given hash list of #%d", i)
+		}
+	}
+
+	// Copy conf to a var of any
+	byBaseline, err := json.Marshal(*b.conf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal conf to json: %w", err)
+	}
+
+	var objForHash any
+	if err := json.Unmarshal(byBaseline, &objForHash); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal conf from json: %w", err)
+	}
+
+	// Replace Listor of each Checker to hash of Listor
+	var objChecker []any
+	objChecker, ok := objForHash.(map[string]any)["Checker"].([]any)
+	if !ok {
+		return nil, errors.New("failed to unmarshal Checker from json")
+	}
+
+	for i, item := range objChecker {
+		objItem, ok := item.(map[string]any)
+		if !ok {
+			return nil, errors.New("failed to unmarshal Checker item from json")
+		}
+
+		delete(objItem, "Listor")
+		objItem["ListorHash"] = listorHashList[i]
+
+		// Also remove validation info
+		delete(objItem, "Validator")
+	}
+
+	return CalcHash(hashType, objForHash)
 }

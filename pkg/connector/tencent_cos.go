@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
-	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -20,6 +19,10 @@ import (
 )
 
 func createTencentCOSClient(p auth.IAuthProvider, bucketName string) (*cos.Client, error) {
+	if p == nil {
+		return nil, errors.New("nil pointor of IAuthProvider")
+	}
+
 	v, err := p.GetProfile(def.TENCENT_COS)
 	if err != nil {
 		return nil, err
@@ -56,25 +59,16 @@ func createTencentCOSClient(p auth.IAuthProvider, bucketName string) (*cos.Clien
 }
 
 var (
-	_mapTencentCOSClient sync.Map
+	_mapTencentCOSClient internal.SyncMap[*cos.Client]
 
 	_rlTencentCOS = ratelimit.New(10, ratelimit.WithoutSlack)
 )
 
 func getTencentCOSClient(authProvider auth.IAuthProvider, bucketName string) (*cos.Client, error) {
 	key := fmt.Sprintf("%p_%s", authProvider, bucketName)
-	client, ok := _mapTencentCOSClient.Load(key)
-	if !ok {
-		newClient, err := createTencentCOSClient(authProvider, bucketName)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create Tencent COS client: %w", err)
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		client, _ = _mapTencentCOSClient.LoadOrStore(key, newClient)
-	}
-
-	return client.(*cos.Client), nil
+	return _mapTencentCOSClient.LoadOrCreate(key, func() (any, error) {
+		return createTencentCOSClient(authProvider, bucketName)
+	}, nil)
 }
 
 // CallTencentCOS: Send a request to Tencent COS and parse response

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -24,6 +23,10 @@ const (
 )
 
 func createTencentCloudClient(p auth.IAuthProvider) (*common.Client, error) {
+	if p == nil {
+		return nil, errors.New("nil pointor of IAuthProvider")
+	}
+
 	v, err := p.GetProfile(def.TENCENT_CLOUD)
 	if err != nil {
 		return nil, err
@@ -41,25 +44,16 @@ func createTencentCloudClient(p auth.IAuthProvider) (*common.Client, error) {
 }
 
 var (
-	_mapTencentCloudClient sync.Map
+	_mapTencentCloudClient internal.SyncMap[*common.Client]
 
 	_rlTencentCloud = ratelimit.New(10, ratelimit.WithoutSlack)
 )
 
 func getTencentCloudClient(p auth.IAuthProvider) (*common.Client, error) {
 	key := fmt.Sprintf("%p_default", p)
-	client, ok := _mapTencentCloudClient.Load(key)
-	if !ok {
-		newClient, err := createTencentCloudClient(p)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create Tencent cloud client: %w", err)
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		client, _ = _mapTencentCloudClient.LoadOrStore(key, newClient)
-	}
-
-	return client.(*common.Client), nil
+	return _mapTencentCloudClient.LoadOrCreate(key, func() (any, error) {
+		return createTencentCloudClient(p)
+	}, nil)
 }
 
 // CallTencentCloud: Send a request to Tencent cloud and parse response

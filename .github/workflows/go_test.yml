@@ -4,6 +4,8 @@
 name: Go test
 
 on:
+  push:
+    branches: ['api_server']
   pull_request:
     branches: [ "main" ]
     paths-ignore:
@@ -26,6 +28,9 @@ jobs:
 
     - name: Build
       run: CGO_ENABLED=0 go build -ldflags="-w -s" -v ./bin/cmd/main.go
+
+    - name: Build apiserver
+      run: CGO_ENABLED=0 go build -ldflags="-w -s" -v ./bin/apiserver/main.go
 
     - name: Test
       # -race needs CGO_ENABLED=1

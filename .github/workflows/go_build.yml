@@ -9,7 +9,7 @@ env:
 on:
   workflow_dispatch:
   push:
-    branches: [ "ci_build_demo" ]
+    branches: [ "api_server" ]
     paths:
       - '.github/workflows/go_build.yml'
 
@@ -25,10 +25,13 @@ jobs:
         include:
           - postfix: .exe
             os: windows-latest
+            release_name: Windows
           - postfix: ""
             os: macos-latest
+            release_name: MacOS
           - postfix: ""
             os: ubuntu-latest
+            release_name: Linux-amd64
 
     steps:
     - uses: actions/checkout@v4
@@ -41,8 +44,11 @@ jobs:
     - name: Build
       run: go build -ldflags="-w -s" -o output/main${{ matrix.postfix }} -v ./bin/cmd/main.go
 
+    - name: Build apiserver
+      run: go build -ldflags="-w -s" -o output/apiserver${{ matrix.postfix }} -v ./bin/apiserver/main.go
+
     - name: upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Release-${{ matrix.os }}
+        name: Release-${{ matrix.release_name }}
         path: output/*

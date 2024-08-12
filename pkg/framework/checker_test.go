@@ -131,16 +131,24 @@ func TestChecker_GetProp(t *testing.T) {
 	checkerInvalid := setupCheckerData()
 	checkerInvalid.SetDataProvider(&dpInvalid)
 	rm, _ := internal.JsonMarshal("mock")
+	mockDp := SyncMapDataProvider{}
+	mockDp.DataMap.Store(1, []*json.RawMessage{rm})
+	mockDp.CtMap.Store(1, VALID_CT)
 
+	type args struct {
+		opts []GetPropOption
+	}
 	tests := []struct {
 		name    string
 		c       *Checker
+		args    args
 		want    CheckerPropList
 		wantErr bool
 	}{
 		{
 			"Valid result",
 			checker,
+			args{nil},
 			CheckerPropList{
 				{Id: "mock", Prop: rm},
 			},
@@ -149,37 +157,64 @@ func TestChecker_GetProp(t *testing.T) {
 		{
 			"Valid result with empty IDataProvider",
 			checkerEmpty,
+			args{nil},
 			nil,
+			false,
+		},
+		{
+			"Valid result with IAuthProvider in opts",
+			checker,
+			args{
+				[]GetPropOption{SetAuthProviderOpt(&auth.AuthFileProvider{})},
+			},
+			CheckerPropList{
+				{Id: "mock", Prop: rm},
+			},
+			false,
+		},
+		{
+			"Valid result with IDataProvider in opts",
+			checker,
+			args{
+				[]GetPropOption{SetDataProviderOpt(&mockDp)},
+			},
+			CheckerPropList{
+				{Id: "mock", Prop: rm},
+			},
 			false,
 		},
 		{
 			"failed to get raw data, provider is nil",
 			checkerNil,
+			args{nil},
 			nil,
 			true,
 		},
 		{
 			"failed to get cloud type from provider",
 			checkerInvalidCt,
+			args{nil},
 			nil,
 			true,
 		},
 		{
 			"cloud type of data \"%s\" mismatch cloud type of Checker",
 			checkerCtMismatch,
+			args{nil},
 			nil,
 			true,
 		},
 		{
 			"failed to get raw data from provider",
 			checkerInvalid,
+			args{nil},
 			nil,
 			true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.c.GetProp()
+			got, err := tt.c.GetProp(tt.args.opts...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Checker.GetProp() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -371,6 +406,7 @@ func Test_getPropWithCloud(t *testing.T) {
 			return rm, nil
 		})
 	defer patchCallAzure.Reset()
+	mockAuthProvider := auth.NewAuthFileProvider(def.ConfProfile{})
 
 	type args struct {
 		authProvider auth.IAuthProvider
@@ -387,7 +423,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of TencentCloud",
 			args{
-				nil, def.TENCENT_CLOUD, "mock",
+				mockAuthProvider, def.TENCENT_CLOUD, "mock",
 				&def.ConfExtractCmd{IdParamName: "mock_name", IdParamType: def.PARAM_STRING},
 			},
 			rm,
@@ -396,7 +432,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of TencentCOS",
 			args{
-				nil, def.TENCENT_COS, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.TENCENT_COS, "mock", &def.ConfExtractCmd{},
 			},
 			rm,
 			false,
@@ -404,7 +440,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of AliyunCloud",
 			args{
-				nil, def.ALIYUN_CLOUD, "mock",
+				mockAuthProvider, def.ALIYUN_CLOUD, "mock",
 				&def.ConfExtractCmd{IdParamName: "mock_name", IdParamType: def.PARAM_STRING},
 			},
 			rm,
@@ -413,7 +449,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of AliyunOSS",
 			args{
-				nil, def.ALIYUN_OSS, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.ALIYUN_OSS, "mock", &def.ConfExtractCmd{},
 			},
 			rm,
 			false,
@@ -421,7 +457,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"Valid result of Azure",
 			args{
-				nil, def.AZURE, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.AZURE, "mock", &def.ConfExtractCmd{},
 			},
 			rm,
 			false,
@@ -429,7 +465,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"missing IdParamName for getting prop from tencent cloud",
 			args{
-				nil, def.TENCENT_CLOUD, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.TENCENT_CLOUD, "mock", &def.ConfExtractCmd{},
 			},
 			nil,
 			true,
@@ -437,7 +473,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"missing IdParamName for getting prop from aliyun",
 			args{
-				nil, def.ALIYUN_CLOUD, "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, def.ALIYUN_CLOUD, "mock", &def.ConfExtractCmd{},
 			},
 			nil,
 			true,
@@ -445,7 +481,7 @@ func Test_getPropWithCloud(t *testing.T) {
 		{
 			"invalid cloud type",
 			args{
-				nil, "invalid", "mock", &def.ConfExtractCmd{},
+				mockAuthProvider, "invalid", "mock", &def.ConfExtractCmd{},
 			},
 			nil,
 			true,

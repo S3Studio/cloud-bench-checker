@@ -72,6 +72,11 @@ func Test_createAzureClient(t *testing.T) {
 			args{&test.MockKeyNotSetAuthProvider{}},
 			true,
 		},
+		{
+			"nil pointor of IAuthProvider",
+			args{nil},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

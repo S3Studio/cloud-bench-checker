@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"sync"
 
 	"github.com/s3studio/cloud-bench-checker/internal"
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -17,6 +16,10 @@ import (
 )
 
 func createAliyunOSSClient(p auth.IAuthProvider) (*oss.Client, error) {
+	if p == nil {
+		return nil, errors.New("nil pointor of IAuthProvider")
+	}
+
 	v, err := p.GetProfile(def.ALIYUN_OSS)
 	if err != nil {
 		return nil, err
@@ -36,25 +39,16 @@ func createAliyunOSSClient(p auth.IAuthProvider) (*oss.Client, error) {
 }
 
 var (
-	_mapAliyunOSSClient sync.Map
+	_mapAliyunOSSClient internal.SyncMap[*oss.Client]
 
 	_rlAliyunOSS = ratelimit.New(10, ratelimit.WithoutSlack)
 )
 
 func getAliyunOSSClient(p auth.IAuthProvider) (*oss.Client, error) {
 	key := fmt.Sprintf("%p_default", p)
-	client, ok := _mapAliyunOSSClient.Load(key)
-	if !ok {
-		newClient, err := createAliyunOSSClient(p)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create Aliyun OSS client: %w", err)
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		client, _ = _mapAliyunOSSClient.LoadOrStore(key, newClient)
-	}
-
-	return client.(*oss.Client), nil
+	return _mapAliyunOSSClient.LoadOrCreate(key, func() (any, error) {
+		return createAliyunOSSClient(p)
+	}, nil)
 }
 
 const ALIYUN_OSS_MARKER_KEY = "marker"

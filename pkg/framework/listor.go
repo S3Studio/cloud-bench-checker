@@ -2,7 +2,9 @@
 package framework
 
 import (
+	"crypto"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/s3studio/cloud-bench-checker/pkg/auth"
@@ -71,26 +73,44 @@ func (l *Listor) SetAuthProvider(authProvider auth.IAuthProvider) {
 //
 // Raw data from different pages are merged where necessary.
 // Listor.GetOnePage is called to retrieve data as an implementation of IPaginator.
+// @param: opts: Options to pass to GetEntireList, and finally Listor.GetOnePage
 // @return: List of raw data
 // @return: Error
-func (l *Listor) ListData() ([]*json.RawMessage, error) {
-	return GetEntireList(l, l.conf.Paginator)
+func (l *Listor) ListData(opts ...GetPageOption) ([]*json.RawMessage, error) {
+	return GetEntireList(l, l.conf.Paginator, opts...)
 }
 
 // GetOnePage: Implementation of IPaginator.GetOnePage
 //
 // See function of GetEntireList in pagination for details of paginationParam
 // @param: paginationParam: Parameter of each page
+// @param: opts: Additional options
 // @return: List of data on one page
 // @return: NextCondition, See function of GetEntireList in pagination for detail
 // @return: Error
-func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage, NextCondition, error) {
+func (l *Listor) GetOnePage(paginationParam map[string]any, opts ...GetPageOption) ([]*json.RawMessage, NextCondition, error) {
+	var optAll getPageOpt
+	for _, opt := range opts {
+		err := opt(&optAll)
+		if err != nil {
+			return nil, NextCondition{}, err
+		}
+	}
+	authProvider := optAll.ap
+	if authProvider == nil {
+		authProvider = l.authProvider
+	}
+
+	if authProvider == nil {
+		return nil, NextCondition{}, errors.New("nil pointor of IAuthProvider of Listor")
+	}
+
 	switch l.conf.CloudType {
 	case def.TENCENT_CLOUD:
 		mergeMaps(&paginationParam, l.conf.ListCmd.TencentCloud.ExtraParam)
 
 		pageRes, err := connector.CallTencentCloud(
-			l.authProvider,
+			authProvider,
 			l.conf.ListCmd.TencentCloud.Service,
 			l.conf.ListCmd.TencentCloud.Version,
 			l.conf.ListCmd.TencentCloud.Action,
@@ -107,7 +127,7 @@ func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage,
 		// service and action are ignored, and bucketName is set to empty,
 		// so that CallTencentCOS returns a list of all buckets
 		res, err := connector.CallTencentCOS(
-			l.authProvider,
+			authProvider,
 			"", "", "",
 		)
 		if err != nil {
@@ -126,7 +146,7 @@ func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage,
 		mergeMaps(&paginationParam, l.conf.ListCmd.Aliyun.ExtraParam)
 
 		pageRes, err := connector.CallAliyunCloud(
-			l.authProvider,
+			authProvider,
 			l.conf.ListCmd.Aliyun.Endpoint,
 			l.conf.ListCmd.Aliyun.EndpointWithRegion,
 			l.conf.ListCmd.Aliyun.Version,
@@ -144,7 +164,7 @@ func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage,
 		// action is ignored, and bucketName is set to empty,
 		// so that CallAliyunOSS returns a list of all buckets
 		pageRes, err := connector.CallAliyunOSS(
-			l.authProvider,
+			authProvider,
 			"", "",
 			paginationParam,
 		)
@@ -163,7 +183,7 @@ func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage,
 	case def.K8S:
 		mergeMaps(&paginationParam, l.conf.ListCmd.K8sList.ListOptions)
 		res, err := connector.CallK8sList(
-			l.authProvider,
+			authProvider,
 			l.conf.ListCmd.K8sList.Namespace,
 			l.conf.ListCmd.K8sList.Group,
 			l.conf.ListCmd.K8sList.Version,
@@ -187,7 +207,7 @@ func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage,
 		nextLink, _ := paginationParam[AZURE_NEXT_MARKER].(string)
 
 		res, err := connector.CallAzureList(
-			l.authProvider,
+			authProvider,
 			l.conf.ListCmd.Azure.Provider,
 			l.conf.ListCmd.Azure.Version,
 			l.conf.ListCmd.Azure.RsType,
@@ -208,6 +228,36 @@ func (l *Listor) GetOnePage(paginationParam map[string]any) ([]*json.RawMessage,
 	default:
 		return nil, NextCondition{}, fmt.Errorf("invalid cloud type of %s", l.conf.CloudType)
 	}
+}
+
+// GetHash: Get the hash of the Listor
+//
+// The hash value is useful to ensure data is provided from the same Listor.
+// Before calculation, a conversion from conf struct to unmarshaled json object is required,
+// so that the order of keys in the json object remains stable.
+//
+// The id of listor is removed to avoid being affected by id remapping in different servers.
+//
+// @param: hashType: Method of hash
+// @return: Hash value
+// @return: Error
+func (l *Listor) GetHash(hashType crypto.Hash) ([]byte, error) {
+	// Copy conf to a var of object
+	byListor, err := json.Marshal(*l.conf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal conf to json: %w", err)
+	}
+
+	var objListor map[string]any
+	if err := json.Unmarshal(byListor, &objListor); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal conf from json: %w", err)
+	}
+
+	// Remove current id
+	delete(objListor, "Id")
+
+	// Calculate hash
+	return CalcHash(hashType, objListor)
 }
 
 func mergeMaps(target *map[string]any, from ...map[string]any) {

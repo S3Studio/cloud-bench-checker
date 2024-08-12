@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 
+	"github.com/s3studio/cloud-bench-checker/internal"
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
 
 	"github.com/spf13/viper"
@@ -34,7 +34,7 @@ type AuthFileProvider struct {
 	// Definition of profile
 	profile def.ConfProfile
 	// sync.Map which stores the cache of vipers of profile
-	mapViper sync.Map
+	mapViper internal.SyncMap[*viper.Viper]
 }
 
 // NewAuthFileProvider: Constructor of AuthFileProvider
@@ -84,22 +84,9 @@ func (p *AuthFileProvider) GetProfile(cloudType def.CloudType) (*viper.Viper, er
 		return nil, ProfileNotDefinedError{key}
 	}
 
-	v, ok := p.mapViper.Load(profileName)
-	if !ok {
-		newViper, err := readProfile(profileName)
-		if err != nil {
-			return nil, err
-		}
-		// May have already been created by other goroutions,
-		// but it's ok to spend a little more time creating them
-		v, _ = p.mapViper.LoadOrStore(profileName, newViper)
-	}
-
-	viperValue, ok := v.(*viper.Viper)
-	if !ok {
-		panic("internal error, not a valid viper in sync.Map")
-	}
-	return viperValue, nil
+	return p.mapViper.LoadOrCreate(profileName, func() (any, error) {
+		return readProfile(profileName)
+	}, nil)
 }
 
 func readProfile(profileName string) (*viper.Viper, error) {

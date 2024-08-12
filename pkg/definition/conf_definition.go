@@ -47,6 +47,7 @@ type ConfOption struct {
 	OutputFilename string       `yaml:"output_filename"`
 	OutputMetadata []string     `yaml:"output_metadata"`
 	OutputRiskOnly bool         `yaml:"output_risk_only"`
+	ServerHideYaml bool         `yaml:"server_hide_yaml"`
 }
 
 type ConfProfile map[string]string

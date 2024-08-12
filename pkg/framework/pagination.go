@@ -11,14 +11,34 @@ import (
 	def "github.com/s3studio/cloud-bench-checker/pkg/definition"
 )
 
+type getPageOpt struct {
+	// IAuthProvider used in call of GetOnePage instead of default value
+	ap auth.IAuthProvider
+}
+
+// GetPageOption: Functional options used in GetOnePage in case more options are added
+type GetPageOption func(opt *getPageOpt) error
+
+// SetListorAuthProvider: Set getPageOpt.ap
+//
+// IAuthProvider used in call of GetOnePage instead of default value
+// @param: val: Value for IAuthProvider
+func SetListorAuthProvider(val auth.IAuthProvider) GetPageOption {
+	return func(options *getPageOpt) error {
+		options.ap = val
+		return nil
+	}
+}
+
 // IPaginator: Interface to get single page of data
 type IPaginator interface {
 	// See function of GetEntireList for details of paginationParam
 	// @param: paginationParam: Parameter of each page
+	// @param: opts: Additional options
 	// @return: List of data on one page
 	// @return: NextCondition, See function GetEntireList for detail
 	// @return: Error
-	GetOnePage(paginationParam map[string]any) ([]*json.RawMessage, NextCondition, error)
+	GetOnePage(paginationParam map[string]any, opts ...GetPageOption) ([]*json.RawMessage, NextCondition, error)
 }
 
 const DEFAULT_PAGE_SIZE = 10
@@ -56,9 +76,10 @@ type NextCondition struct {
 //
 // @param: p: Implementation of interface IPaginator to get data of one page
 // @param: conf: Definition of ConfPaginator
+// @param: opts: Options to pass to IPaginator.GetOnePage
 // @return: List of data merged from all pages
 // @return: Error
-func GetEntireList(p IPaginator, conf def.ConfPaginator) ([]*json.RawMessage, error) {
+func GetEntireList(p IPaginator, conf def.ConfPaginator, opts ...GetPageOption) ([]*json.RawMessage, error) {
 	if conf.PaginationType == def.PAGEINATION_DEFAULT {
 		// Default value must be set to a valid value before this function is called
 		return nil, errors.New("PaginationType not set")
@@ -67,7 +88,7 @@ func GetEntireList(p IPaginator, conf def.ConfPaginator) ([]*json.RawMessage, er
 	paginationParam := make(map[string]any)
 
 	if conf.PaginationType == def.PAGE_NOPAGEINATION {
-		data, _, err := p.GetOnePage(paginationParam)
+		data, _, err := p.GetOnePage(paginationParam, opts...)
 		if err != nil {
 			pndError := auth.ProfileNotDefinedError{}
 			if errors.As(err, &pndError) {
@@ -126,7 +147,7 @@ GetPageLoop:
 			}
 		}
 
-		pageList, nextCondition, err := p.GetOnePage(paginationParam)
+		pageList, nextCondition, err := p.GetOnePage(paginationParam, opts...)
 		if err != nil {
 			pndError := auth.ProfileNotDefinedError{}
 			if errors.As(err, &pndError) {
