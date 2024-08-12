@@ -134,7 +134,7 @@ docker build -t {image_name} -f ./Dockerfile-apiserver .
 ### Command to start Docker container
 Considering the template of the following command:
 ```sh
-docker run -d -p 2480:2480 -v {conf_file}:/app/config.conf -v {auth_dir}:/app/.auth ghcr.io/s3studio/cloud-bench-checker-apiserver:api_server
+docker run -d -p 2480:2480 -v {conf_file}:/app/config.conf -v {auth_dir}:/app/.auth ghcr.io/s3studio/cloud-bench-checker-apiserver:latest
 ```
 
 #### -p {local_port}:2480
