@@ -327,6 +327,24 @@ If set to "false" or missing, the result returned is the last page.
 
 Avaliable if: PAGE_MARKER
 
+### constraint
+> Added from project version 0.2.1
+
+Defines the constraint to be checked when connect to a cloud
+
+#### k8s
+Defines constraint of k8s
+
+Avaliable properties:
+| Key | Type | Description |
+| - | - | - |
+| version | string | Constraint of server version |
+
+*Note:*
+1. github.com/Masterminds/semver/v3 is used to check `version`.
+   See the [reference](https://github.com/Masterminds/semver) for formats and usage
+   such as "*", "~", "^", etc.
+
 ---
 
 ## baseline
