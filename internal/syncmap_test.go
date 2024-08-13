@@ -1,4 +1,5 @@
 // SyncMap util
+
 package internal
 
 import (

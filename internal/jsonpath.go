@@ -1,4 +1,5 @@
 // Jsonpath util
+
 package internal
 
 import (

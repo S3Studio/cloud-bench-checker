@@ -240,7 +240,7 @@ func TestListor_GetHash(t *testing.T) {
 			"Valid result",
 			NewListor(&def.ConfListor{}, nil),
 			args{crypto.SHA256},
-			"471747ecadce9852b70ed3fa83b8b1582f6e3005121a0f4bc3c4048a6cb2c216", // hardcode value
+			"e1ee77ffb1d36d8db254caeebf056cdce15a887790f875e22179e496104a03ff", // hardcode value
 			false,
 		},
 	}

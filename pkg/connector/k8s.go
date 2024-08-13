@@ -27,6 +27,8 @@ import (
 type k8sClient struct {
 	c *dynamic.DynamicClient
 	m meta.RESTMapper
+	// Version of server
+	v string
 }
 
 func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
@@ -56,7 +58,7 @@ func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
 		return nil, err
 	}
 
-	// GetAPIGroupResources is called only once and the result is cached
+	// GetAPIGroupResources() is called only once and the result is cached
 	// TODO: Manage how to refresh restmapper
 	groupResources, err := restmapper.GetAPIGroupResources(discoveryClient)
 	if err != nil {
@@ -64,6 +66,14 @@ func createK8sClient(p auth.IAuthProvider) (*k8sClient, error) {
 	}
 
 	client.m = restmapper.NewDiscoveryRESTMapper(groupResources)
+
+	// ServerVersion() is called only once and the result is cached
+	serverVersion, err := discoveryClient.ServerVersion()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get server version: %w", err)
+	}
+
+	client.v = fmt.Sprintf("%s.%s", serverVersion.Major, serverVersion.Minor)
 
 	return &client, nil
 }
@@ -136,4 +146,20 @@ func CallK8sList(authProvider auth.IAuthProvider, namespace string, group string
 	}
 
 	return internal.JsonMarshal(listRes.UnstructuredContent())
+}
+
+// GetK8sVersion: Get version of a k8s server
+//
+// @param: authProvider: IAuthProvider to provide pathname of kubeconfig
+// @return: Version of k8s server
+// @return: Error
+func GetK8sVersion(authProvider auth.IAuthProvider) (string, error) {
+	client, err := getK8sClient(authProvider)
+	if err != nil {
+		return "", err
+	}
+
+	_ = internal.DisableInlining()
+
+	return client.v, nil
 }

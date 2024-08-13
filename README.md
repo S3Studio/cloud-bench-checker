@@ -106,7 +106,7 @@ Please see [documentation](doc).
         - [x] aliyun cloud
             - [x] aliyun oss
         - [x] k8s
-            - [ ] version validator
+            - [x] version constraint
         - [ ] aws
         - [x] azure ( :warning: beta version)
         - [ ] maybe openstack?

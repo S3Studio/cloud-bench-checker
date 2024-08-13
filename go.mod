@@ -83,6 +83,7 @@ require (
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.13.0
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.7.0
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/agiledragon/gomonkey/v2 v2.12.0
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.8
 	github.com/alibabacloud-go/openapi-util v0.1.0

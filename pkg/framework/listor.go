@@ -53,7 +53,7 @@ var _defaultPaginatorConf = map[def.CloudType]def.ConfPaginator{
 	// No default definition for def.ALIYUN_CLOUD as it varies from API to API
 }
 
-// NewListor:Constructor of Listor
+// NewListor: Constructor of Listor
 // @param: conf: Definition of Listor
 // @param: authProvider: IAuthProvider to provide profile of auth
 func NewListor(conf *def.ConfListor, authProvider auth.IAuthProvider) *Listor {
@@ -78,6 +78,26 @@ func (l *Listor) SetAuthProvider(authProvider auth.IAuthProvider) {
 // @return: List of raw data
 // @return: Error
 func (l *Listor) ListData(opts ...GetPageOption) ([]*json.RawMessage, error) {
+	// perform constraint check first
+	var optAll getPageOpt
+	for _, opt := range opts {
+		err := opt(&optAll)
+		if err != nil {
+			return nil, err
+		}
+	}
+	authProvider := optAll.ap
+	if authProvider == nil {
+		authProvider = l.authProvider
+	}
+
+	constraintChecker := NewConstraintChecker(&l.conf.Constraint)
+	if checkRes, err := constraintChecker.Check(authProvider, string(l.conf.CloudType)); err != nil {
+		return nil, fmt.Errorf("failed to check constraint: %w", err)
+	} else if checkRes != "" {
+		return nil, errors.New(checkRes)
+	}
+
 	return GetEntireList(l, l.conf.Paginator, opts...)
 }
 

@@ -126,12 +126,21 @@ type ConfPaginator struct {
 	TruncatedName  string `yaml:"truncated_name"`
 }
 
+type ConfConstraintK8s struct {
+	Version string `yaml:"version"`
+}
+
+type ConfConstraint struct {
+	ConstraintK8s ConfConstraintK8s `yaml:"k8s"`
+}
+
 type ConfListor struct {
-	Id        int           `yaml:"id"`
-	CloudType CloudType     `yaml:"cloud_type"`
-	RsType    string        `yaml:"rs_type"` // Human readable resource type
-	ListCmd   ConfListCmd   `yaml:"list_cmd"`
-	Paginator ConfPaginator `yaml:"paginator"`
+	Id         int            `yaml:"id"`
+	CloudType  CloudType      `yaml:"cloud_type"`
+	RsType     string         `yaml:"rs_type"` // Human readable resource type
+	ListCmd    ConfListCmd    `yaml:"list_cmd"`
+	Paginator  ConfPaginator  `yaml:"paginator"`
+	Constraint ConfConstraint `yaml:"constraint"`
 }
 
 type ConfExtractCmd struct {

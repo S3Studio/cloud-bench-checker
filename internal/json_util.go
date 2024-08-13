@@ -1,4 +1,5 @@
 // Json util
+
 package internal
 
 import (

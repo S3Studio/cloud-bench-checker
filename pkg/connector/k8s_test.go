@@ -32,7 +32,7 @@ func TestCallK8sList(t *testing.T) {
 					return &listRes, nil
 				})
 			m := meta.PriorityRESTMapper{}
-			return &k8sClient{c, &m}, nil
+			return &k8sClient{c, &m, ""}, nil
 		})
 	defer patchGetK8sClient.Reset()
 	patchResourceFor := gomonkey.ApplyMethodFunc(meta.PriorityRESTMapper{}, "ResourceFor",
