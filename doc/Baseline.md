@@ -1,7 +1,7 @@
 # Baseline Config File Format
 The baseline configuration file defines and describes benchmark baselines using the YAML format.
 
-*Last updated: 2024-08-05*
+*Last updated: 2024-08-13*
 
 ---
 

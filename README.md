@@ -99,6 +99,7 @@ Please see [documentation](doc).
     - [x] checker
     - [x] baseline
     - [x] auth controller
+    - [x] constraint checker
 - [ ] Connector
     - [ ] cloud connector
         - [x] tencent cloud
