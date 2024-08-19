@@ -5,10 +5,7 @@ name: Go test
 
 on:
   push:
-    branches: ['kind_test']
-    paths:
-      - '.github/workflows/go_test.yml'
-      - 'test/kind/**'
+    branches: ['crlf']
   pull_request:
     branches: [ "main" ]
     paths-ignore:
