@@ -36,7 +36,7 @@ jobs:
           - os:
               type: macos-latest
               name: MacOS
-            arch: arm64
+            arch: arm64 # default runner of MacOS is already arm64
 
     steps:
     - uses: actions/checkout@v4
