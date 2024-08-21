@@ -33,7 +33,7 @@ jobs:
           - type: macos-latest
             name: MacOS
         exclude:
-          - os: macos-latest
+          - os.name: MacOS
             arch: arm64
 
     steps:
