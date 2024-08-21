@@ -9,29 +9,32 @@ env:
 on:
   workflow_dispatch:
   push:
-    branches: [ "api_server" ]
+    branches: [ "build_arm64" ]
     paths:
       - '.github/workflows/go_build.yml'
 
 jobs:
 
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.type }}
 
     # create a build matrix for jobs
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        include:
-          - postfix: .exe
-            os: windows-latest
-            release_name: Windows
-          - postfix: ""
-            os: macos-latest
-            release_name: MacOS
-          - postfix: ""
-            os: ubuntu-latest
-            release_name: Linux-amd64
+        arch:
+          - default
+          - arm64
+        os:
+          - type: ubuntu-latest
+            name: Linux
+          - type: windows-latest
+            name: Windows
+            postfix: .exe
+          - type: macos-latest
+            name: MacOS
+        exclude:
+          - os: macos-latest
+            arch: arm64
 
     steps:
     - uses: actions/checkout@v4
@@ -42,13 +45,17 @@ jobs:
         go-version: 'stable'
 
     - name: Build
-      run: go build -ldflags="-w -s" -o output/main${{ matrix.postfix }} -v ./bin/cmd/main.go
+      env:
+        GOARCH: ${{ matrix.arch != 'default' && 'arm64' || '' }}
+      run: go build -ldflags="-w -s" -o output/main${{ matrix.os.postfix }} -v ./bin/cmd/main.go
 
     - name: Build apiserver
-      run: go build -ldflags="-w -s" -o output/apiserver${{ matrix.postfix }} -v ./bin/apiserver/main.go
+      env:
+        GOARCH: ${{ matrix.arch != 'default' && 'arm64' || '' }}
+      run: go build -ldflags="-w -s" -o output/apiserver${{ matrix.os.postfix }} -v ./bin/apiserver/main.go
 
     - name: upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Release-${{ matrix.release_name }}
+        name: Release-${{ matrix.os.name }}${{ matrix.os.name != 'MacOS' && (matrix.arch == 'default' && '-amd64' || '-arm64') || '' }}
         path: output/*
