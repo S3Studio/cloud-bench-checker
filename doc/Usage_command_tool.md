@@ -16,9 +16,10 @@ or
 ### Cloud auth config
 Prepare authorization information from the corresponding cloud, and store it in the format of the [reference](Auth.md).
 
-*DISCLAIMER*:
-**ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project,
-and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
+> [!CAUTION]
+> DISCLAIMER:
+> **ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project,
+> and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
 
 ## Run locally
 ### Download binary

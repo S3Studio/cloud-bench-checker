@@ -14,9 +14,10 @@ Connect to multiple clouds such as public cloud or cloud native via public APIs,
 * :white_check_mark: Flexible configuration to extract required data from cloud response with the support of [JSONPath](https://goessner.net/articles/JsonPath/)
 * :white_check_mark: Flexible result validation with the support of [JSON Schema](https://json-schema.org/)
 
-## SECURITY DISCLAIMER
-**ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project,
-and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
+> [!CAUTION]
+> SECURITY DISCLAIMER: 
+> **ALWAYS** use the *READONLY* cloud authorizations (ak/sk/ClusterRole/etc...) to be configured in the project,
+> and **NEVER** trust any rule provided by others, even if it is cloned or downloaded from this site.
 
 ## Quick start
 ### Download
